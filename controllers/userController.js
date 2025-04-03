@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const Service = require('../models/serviceModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -31,7 +32,7 @@ const userController = {
             const encryptedPassword = await bcrypt.hash(password, 10);
 
             // Create new user
-            const newUser = new User({ name, email, password: encryptedPassword,role,phoneNumber });
+            const newUser = new User({ name, email, password: encryptedPassword,role:"user",phoneNumber });
             await newUser.save();
 
             res.status(201).json({
@@ -182,7 +183,120 @@ const userController = {
                 error: err.message
             });
         }
+    },
+
+
+    bookService: async (req, res) => {
+        try {
+            const { 
+                customerName, 
+                customerEmail, 
+                customerPhone, 
+                serviceType, 
+                pickupAddress: { street: pickupStreet, city: pickupCity, state: pickupState, zipCode: pickupZipCode }, 
+                deliveryAddress: { street: deliveryStreet, city: deliveryCity, state: deliveryState, zipCode: deliveryZipCode }, 
+                estimatedWeight, 
+                pickupDate, 
+                priceEstimate, 
+                paymentStatus,
+                itemsDescription,
+                deliveryDate,
+                finalPrice,
+                status,
+             } = req.body
+            console.log("bookService", req.body);
+            const newService = new Service({
+                customerName, 
+                customerEmail, 
+                customerPhone, 
+                serviceType, 
+                pickupAddress: { street: pickupStreet, city: pickupCity, state: pickupState, zipCode: pickupZipCode }, 
+                deliveryAddress: { street: deliveryStreet, city: deliveryCity, state: deliveryState, zipCode: deliveryZipCode }, 
+                estimatedWeight, 
+                pickupDate, 
+                priceEstimate, 
+                paymentStatus,
+                itemsDescription,
+                deliveryDate,
+                finalPrice,
+                status,
+            });
+            await newService.save();
+            res.status(201).json({
+                success: true,
+                statusCode: 201,
+                message: 'Product added successfully',
+                data: newService
+            });
+        } catch (error) {
+            console.log("error", error);
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: 'Server error',
+                error: error.message
+            });
+        }
+    },
+    getServices: async (req, res) => {
+        try {
+
+            const services = await Service
+                .find({})
+                .lean();
+
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: "Services fetched successfully",
+                count: services.length,
+                data: services,
+            });
+
+        } catch (err) {
+            console.log("error: ", err);
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: "Internal Server Error"
+            });
+        }
+    },
+    getStatus : async (req, res) => {
+        try {
+            const requestId = req.params.id;
+            console.log("Request ID:", requestId);
+    
+            // Use findById instead of find to return a single document
+            const service = await Service.findById(requestId);
+    
+            if (!service) {
+                return res.status(404).json({
+                    success: false,
+                    statusCode: 404,
+                    message: "Service not found",
+                    data: null
+                });
+            }
+    
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: "Service status fetched successfully",
+                data: service,
+            });
+        } catch (err) {
+            console.error("Error in getStatus:", err);
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: "Internal Server Error",
+                error: err.message, // Include the error message for debugging
+            });
+        }
     }
+    
+    
 };
 
 module.exports = userController;
