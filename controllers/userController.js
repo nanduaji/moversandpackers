@@ -283,7 +283,10 @@ const userController = {
                 success: true,
                 statusCode: 200,
                 message: "Service status fetched successfully",
-                data: service,
+                status: service.status,
+                data: {
+                    serviceDetails: service
+                },
             });
         } catch (err) {
             console.error("Error in getStatus:", err);
