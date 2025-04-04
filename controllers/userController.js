@@ -77,7 +77,6 @@ const userController = {
     userLogin: async (req, res) => {
         try {
             const { email, password } = req.body;
-            console.log("email",email)
             // Check if fields are provided
             if (!email || !password) {
                 return res.status(400).json({
@@ -112,7 +111,6 @@ const userController = {
 
             // Generate JWT token
             const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '10d' });
-            console.log("token", token)
             res.status(200).json({
                 success: true,
                 statusCode: 200,
@@ -155,12 +153,11 @@ const userController = {
                 });
             }
     
-            // Update fields if provided
+            // Update fields
             if (name) user.name = name;
             if (phoneNumber) user.phoneNumber = phoneNumber;
             if (role) user.role = role;
     
-            // If password is provided, hash it before updating
             if (password) {
                 user.password = await bcrypt.hash(password, 10);
             }
@@ -184,8 +181,6 @@ const userController = {
             });
         }
     },
-
-
     bookService: async (req, res) => {
         try {
             const { 
@@ -204,7 +199,6 @@ const userController = {
                 finalPrice,
                 status,
              } = req.body
-            console.log("bookService", req.body);
             const newService = new Service({
                 customerName, 
                 customerEmail, 
@@ -265,9 +259,6 @@ const userController = {
     getStatus : async (req, res) => {
         try {
             const requestId = req.params.id;
-            console.log("Request ID:", requestId);
-    
-            // Use findById instead of find to return a single document
             const service = await Service.findById(requestId);
     
             if (!service) {
@@ -294,7 +285,7 @@ const userController = {
                 success: false,
                 statusCode: 500,
                 message: "Internal Server Error",
-                error: err.message, // Include the error message for debugging
+                error: err.message,
             });
         }
     }

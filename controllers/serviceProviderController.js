@@ -87,7 +87,6 @@ const serviceProviderController = {
     
                 // Generate JWT token
                 const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '10d' });
-                console.log("token", token)
                 res.status(200).json({
                     success: true,
                     statusCode: 200,
