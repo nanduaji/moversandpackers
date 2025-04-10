@@ -1,0 +1,25 @@
+# Node modules
+backend/node_modules
+frontend/node_modules
+
+# Environment files
+backend/.env
+frontend/.env
+
+# Logs
+*.log
+
+# IDE settings
+.vscode/
+
+# Build files
+frontend/build
+frontend/dist
+backend/build
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Big video/image files
+frontend/public/moversandpackers.mov

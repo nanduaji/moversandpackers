@@ -1,0 +1,150 @@
+.aboutWrapper {
+    padding: 100px 0;
+    background-color: #f3f4f6;
+  }
+  
+  .headingMain {
+    font-size: 48px;
+    font-weight: 700;
+    color: #f97316;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+  
+  .subText {
+    font-size: 18px;
+    color: #4b5563;
+    line-height: 1.8;
+    margin-bottom: 30px;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    padding: 0 20px;
+  }
+  
+  .exploreBtn {
+    padding: 14px 30px;
+    border: none;
+    border-radius: 30px;
+    background-color: #f97316;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  .exploreBtn:hover {
+    background-color: #ea580c;
+    transform: translateY(-2px);
+  }
+  
+  .image {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: block;
+    margin: 20px auto;
+  }
+  
+ 
+  .videoWrapper {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 20px auto;
+    max-width: 800px;
+    height:350px
+  }
+  
+  /* .reactPlayer {
+    position: absolute;
+    top: 0;
+    left: 0; 
+     border-radius: 20px;
+  } */
+  .skeleton {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #e0e0e0 25%, #f3f3f3 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  
+  @media screen and (max-width: 992px) {
+    .headingMain {
+      font-size: 36px;
+    }
+  
+    .subText {
+      font-size: 16px;
+      margin-bottom: 25px;
+    }
+  
+    .exploreBtn {
+      font-size: 16px;
+      padding: 12px 24px;
+    }
+  
+    .image {
+      max-width: 90%;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .headingMain {
+      font-size: 28px;
+    }
+  
+    .subText {
+      font-size: 15px;
+    }
+  
+    .aboutWrapper {
+      padding: 50px 0;
+    }
+  
+    .exploreBtn {
+      font-size: 15px;
+      padding: 10px 20px;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .headingMain {
+      font-size: 24px;
+    }
+  
+    .subText {
+      font-size: 14px;
+      padding: 0 10px;
+    }
+  
+    .image {
+      max-width: 100%;
+    }
+  
+    .exploreBtn {
+      font-size: 14px;
+      padding: 8px 16px;
+    }
+  }
+  

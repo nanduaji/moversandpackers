@@ -1,0 +1,118 @@
+.serviceWrapper {
+    padding: 100px 0;
+  }
+  
+  .heading {
+    font-size: 40px;
+    font-weight: 700;
+    text-align: center;
+    color: #f97316;
+    margin-bottom: 50px;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .serviceCard {
+    background-color: #ffffff;
+    padding: 30px 20px;
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+  
+  .serviceCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .icon {
+    font-size: 50px;
+    color: #f97316;
+    margin-bottom: 20px;
+  }
+  
+  h4 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #2c2c2c;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+    font-family: 'Poppins', sans-serif;
+    flex-grow: 1; 
+  }
+  .moveTruck {
+    animation: moveTruck 1s infinite alternate ease-in-out;
+  }
+  
+  @keyframes moveTruck {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(6px); }
+  }
+  
+  /* Box Bounce */
+  .boxBounce {
+    animation: boxBounce 0.8s infinite alternate ease-in-out;
+  }
+  
+  @keyframes boxBounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-6px); }
+  }
+  
+  /* Home Pulse */
+  .homePulse {
+    animation: homePulse 1.2s infinite ease-in-out;
+  }
+  
+  @keyframes homePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.07); }
+    100% { transform: scale(1); }
+  }
+  
+  /* Warehouse Scale */
+  .warehouseScale {
+    animation: warehouseScale 1.2s infinite ease-in-out;
+  }
+  
+  @keyframes warehouseScale {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.07); }
+  }
+  
+  /* Helping Shake */
+  .helpShake {
+    animation: helpShake 0.6s infinite alternate ease-in-out;
+  }
+  
+  @keyframes helpShake {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(6deg); }
+  }
+  
+  /* Smile Rotate */
+  .smileRotate {
+    animation: smileRotate 1s infinite alternate ease-in-out;
+  }
+  
+  @keyframes smileRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-6deg); }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .serviceWrapper {
+      padding: 50px 0;
+    }
+  }
+  
