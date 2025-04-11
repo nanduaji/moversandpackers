@@ -3,26 +3,29 @@ import styles from './SignupOrLogin.module.css';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 const SignupOrLogin = () => {
     const handleLogin = async (event) => {
         event.preventDefault();
         const email = event.target[0].value;
         const password = event.target[1].value;
-        const userLoginResponse = await fetch('http://localhost:3001/api/userLogin', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
-        const data = await userLoginResponse.json(); 
-        console.log(data); 
-        if (data.success) {
+        try {
+            const userLoginResponse = await axios.post('http://localhost:3001/api/userLogin', {
+            email,
+            password
+            });
+            const data = userLoginResponse.data;
+            console.log(data);
+            if (data.success) {
             console.log("success")
             toast.success('Login Successful!');
-        } else {
+            } else {
             console.log("fail")
             toast.error(data.message || 'Login Failed!');
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            toast.error('Login Failed!');
         }
     }
     return (
