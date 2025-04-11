@@ -4,7 +4,7 @@ import Home from "./components/Home";
 import Quotes from "./components/Quotes";
 import Review from "./components/Review";
 import AboutUs from "./components/AboutUs";
-import Services from "./Services";
+import Services from "./components/Services";
 import ContactUs from "./components/ContactUs";
 
 function App() {
