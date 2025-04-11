@@ -27,12 +27,12 @@ const SignupOrLogin = () => {
                 localStorage.setItem('token', data.token);
                 toast.success('Login Successful!');
             } else {
-                console.log("fail")
+                console.log("fail",data)
                 toast.error(data.message || 'Login Failed!');
             }
         } catch (error) {
             console.error("Login error:", error);
-            toast.error('Login Failed!');
+            toast.error(`Login Failed!${error.response.data.message}`);
         }
     }
     const handleRegister = async (event) => {
