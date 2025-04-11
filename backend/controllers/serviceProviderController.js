@@ -134,6 +134,7 @@ const serviceProviderController = {
                 error: err.message
             });
         }
-    }
+    },
+    
 }
 module.exports = serviceProviderController;

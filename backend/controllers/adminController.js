@@ -140,6 +140,47 @@ const adminController = {
                 error: err.message
             });
         }
+    },
+    updateBookingStatus: async (req, res) => {
+        try {
+            const { bookingId } = req.params;
+            const { status } = req.body;
+
+            // Check if bookingId and status are provided
+            if (!bookingId || !status) {
+                return res.status(400).json({
+                    success: false,
+                    statusCode: 400,
+                    message: 'Booking ID and status are required',
+                    data: null
+                });
+            }
+
+            // Update booking status
+            const updatedBooking = await Services.findByIdAndUpdate(bookingId, { status }, { new: true });
+            if (!updatedBooking) {
+                return res.status(404).json({
+                    success: false,
+                    statusCode: 404,
+                    message: 'Booking not found',
+                    data: null
+                });
+            }
+
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: 'Booking status updated successfully',
+                data: updatedBooking
+            });
+        } catch (err) {
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: 'Server error',
+                error: err.message
+            });
+        }
     }
 }
 module.exports = adminController;
