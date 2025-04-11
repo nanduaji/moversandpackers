@@ -6,6 +6,7 @@ import Review from "./components/Review";
 import AboutUs from "./components/AboutUs";
 import Services from "./components/Services";
 import ContactUs from "./components/ContactUs";
+import SignupOrLogin from "./components/SignupOrLogin";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/services" element={<Services />} />
         <Route path="/contactus" element={<ContactUs />} />
+        <Route path="/signuporlogin" element={<SignupOrLogin />} />
       </Routes>
     </Router>
   );
