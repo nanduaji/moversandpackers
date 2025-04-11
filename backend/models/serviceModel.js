@@ -46,6 +46,11 @@ const ServiceSchema = new mongoose.Schema({
         default: "Unpaid" ,
         required: true
     },
+    serviceProviderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ServiceProvider',
+      },
+      
 
     createdAt: { type: Date, default: Date.now }
 });

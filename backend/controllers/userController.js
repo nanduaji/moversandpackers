@@ -1,12 +1,13 @@
 const User = require('../models/userModel');
 const Service = require('../models/serviceModel');
+const ServiceProvider = require('../models/serviceProviderModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const userController = {
     addUser: async (req, res) => {
         try {
-            const { name, email, password,phoneNumber,role } = req.body;
+            const { name, email, password, phoneNumber, role } = req.body;
             // Check if required fields are present
             if (!name || !email || !password || !phoneNumber) {
                 return res.status(400).json({
@@ -32,7 +33,7 @@ const userController = {
             const encryptedPassword = await bcrypt.hash(password, 10);
 
             // Create new user
-            const newUser = new User({ name, email, password: encryptedPassword,role:"user",phoneNumber });
+            const newUser = new User({ name, email, password: encryptedPassword, role: "user", phoneNumber });
             await newUser.save();
 
             res.status(201).json({
@@ -116,7 +117,7 @@ const userController = {
                 statusCode: 200,
                 message: 'Login successful',
                 token,
-                data: { id: user._id, name: user.name, email: user.email,role:user.role }
+                data: { id: user._id, name: user.name, email: user.email, role: user.role }
             });
         } catch (err) {
             res.status(500).json({
@@ -130,7 +131,7 @@ const userController = {
     editUser: async (req, res) => {
         try {
             const { email, name, password, phoneNumber, role } = req.body;
-    
+
             // Check if email is provided
             if (!email) {
                 return res.status(400).json({
@@ -140,10 +141,10 @@ const userController = {
                     data: null
                 });
             }
-    
+
             // Find the user by email
             const user = await User.findOne({ email });
-    
+
             if (!user) {
                 return res.status(404).json({
                     success: false,
@@ -152,26 +153,26 @@ const userController = {
                     data: null
                 });
             }
-    
+
             // Update fields
             if (name) user.name = name;
             if (phoneNumber) user.phoneNumber = phoneNumber;
             if (role) user.role = role;
-    
+
             if (password) {
                 user.password = await bcrypt.hash(password, 10);
             }
-    
+
             // Save the updated user
             await user.save();
-    
+
             res.status(200).json({
                 success: true,
                 statusCode: 200,
                 message: "User updated successfully",
                 data: user
             });
-    
+
         } catch (err) {
             res.status(500).json({
                 success: false,
@@ -183,44 +184,56 @@ const userController = {
     },
     bookService: async (req, res) => {
         try {
-            const { 
-                customerName, 
-                customerEmail, 
-                customerPhone, 
-                serviceType, 
-                pickupAddress: { street: pickupStreet, city: pickupCity, state: pickupState, zipCode: pickupZipCode }, 
-                deliveryAddress: { street: deliveryStreet, city: deliveryCity, state: deliveryState, zipCode: deliveryZipCode }, 
-                estimatedWeight, 
-                pickupDate, 
-                priceEstimate, 
+            const {
+                customerName,
+                customerEmail,
+                customerPhone,
+                serviceType,
+                pickupAddress: { street: pickupStreet, city: pickupCity, state: pickupState, zipCode: pickupZipCode },
+                deliveryAddress: { street: deliveryStreet, city: deliveryCity, state: deliveryState, zipCode: deliveryZipCode },
+                estimatedWeight,
+                pickupDate,
+                priceEstimate,
                 paymentStatus,
                 itemsDescription,
                 deliveryDate,
                 finalPrice,
                 status,
-             } = req.body
+            } = req.body
+            const availableSP = await ServiceProvider.findOne({ location: pickupCity });
+            console.log("availableSP", availableSP)
+            if (!availableSP) {
+                return res.status(404).json({
+                    success: false,
+                    statusCode: 404,
+                    message: 'No Service Provider available in your area'
+                });
+            }
+
             const newService = new Service({
-                customerName, 
-                customerEmail, 
-                customerPhone, 
-                serviceType, 
-                pickupAddress: { street: pickupStreet, city: pickupCity, state: pickupState, zipCode: pickupZipCode }, 
-                deliveryAddress: { street: deliveryStreet, city: deliveryCity, state: deliveryState, zipCode: deliveryZipCode }, 
-                estimatedWeight, 
-                pickupDate, 
-                priceEstimate, 
+                customerName,
+                customerEmail,
+                customerPhone,
+                serviceType,
+                pickupAddress: { street: pickupStreet, city: pickupCity, state: pickupState, zipCode: pickupZipCode },
+                deliveryAddress: { street: deliveryStreet, city: deliveryCity, state: deliveryState, zipCode: deliveryZipCode },
+                estimatedWeight,
+                pickupDate,
+                priceEstimate,
                 paymentStatus,
                 itemsDescription,
                 deliveryDate,
                 finalPrice,
                 status,
+                serviceProviderId: availableSP._id 
             });
             await newService.save();
             res.status(201).json({
                 success: true,
                 statusCode: 201,
                 message: 'Product added successfully',
-                data: newService
+                data: newService,
+                assignedServiceProvider: availableSP.name
             });
         } catch (error) {
             console.log("error", error);
@@ -256,11 +269,11 @@ const userController = {
             });
         }
     },
-    getStatus : async (req, res) => {
+    getStatus: async (req, res) => {
         try {
             const requestId = req.params.id;
             const service = await Service.findById(requestId);
-    
+
             if (!service) {
                 return res.status(404).json({
                     success: false,
@@ -269,7 +282,7 @@ const userController = {
                     data: null
                 });
             }
-    
+
             res.status(200).json({
                 success: true,
                 statusCode: 200,
@@ -288,9 +301,74 @@ const userController = {
                 error: err.message,
             });
         }
+    },
+    getUserBookings: async (req, res) => {
+        try {
+            const userId = req.params.userId;
+
+            const bookings = await Service.find({ customerEmail: userId }).lean();
+
+            if (!bookings || bookings.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    statusCode: 404,
+                    message: "No bookings found for this user",
+                    data: null
+                });
+            }
+
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: "Bookings fetched successfully",
+                count: bookings.length,
+                data: bookings,
+            });
+        } catch (err) {
+            console.error("Error in getUserBookings:", err);
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
+    },
+    cancelBooking: async (req, res) => {
+        try {
+            const bookingId = req.params.bookingId;
+
+            const booking = await Service.findById(bookingId);
+
+            if (!booking) {
+                return res.status(404).json({
+                    success: false,
+                    statusCode: 404,
+                    message: "Booking not found",
+                    data: null
+                });
+            }
+
+            await Service.deleteOne({ _id: bookingId });
+
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: "Booking cancelled successfully",
+                data: null
+            });
+        } catch (err) {
+            console.error("Error in cancelBooking:", err);
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
     }
-    
-    
+
+
 };
 
 module.exports = userController;

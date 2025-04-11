@@ -1,4 +1,6 @@
 const Admin = require('../models/adminModel');
+const Services = require('../models/serviceModel');
+const ServiceProviders = require('../models/serviceProviderModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -103,5 +105,41 @@ const adminController = {
                 });
             }
     },
+    getAllBookings: async (req, res) => {
+        try {
+            const bookings = await Services.find()
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: 'Bookings fetched successfully',
+                data: bookings
+            });
+        } catch (err) {
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: 'Server error',
+                error: err.message
+            });
+        }
+    },
+    getAllServiceProviders: async (req, res) => {
+        try {
+            const serviceProviders = await ServiceProviders.find()
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: 'Service Providers fetched successfully',
+                data: serviceProviders
+            });
+        } catch (err) {
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: 'Server error',
+                error: err.message
+            });
+        }
+    }
 }
 module.exports = adminController;

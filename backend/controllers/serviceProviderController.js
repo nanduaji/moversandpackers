@@ -1,4 +1,5 @@
 const ServiceProvider = require('../models/serviceProviderModel');
+const Services = require('../models/serviceModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -103,5 +104,36 @@ const serviceProviderController = {
                 });
             }
     },
+    getMyBookings: async (req, res) => {
+        try {
+            const { providerId } = req.params;
+            console.log("providerId",providerId)
+            // Check if providerId is provided
+            if (!providerId) {
+                return res.status(400).json({
+                    success: false,
+                    statusCode: 400,
+                    message: 'Provider ID is required',
+                    data: null
+                });
+            }
+
+            // Find bookings for the provider
+            const bookings = await Services.find({ serviceProviderId: providerId });
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: 'Bookings retrieved successfully',
+                data: bookings
+            });
+        } catch (err) {
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: 'Server error',
+                error: err.message
+            });
+        }
+    }
 }
 module.exports = serviceProviderController;
