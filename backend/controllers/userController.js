@@ -8,12 +8,13 @@ const userController = {
     addUser: async (req, res) => {
         try {
             const { name, email, password, phoneNumber, role } = req.body;
+            console.log("req.body", req.body)
             // Check if required fields are present
             if (!name || !email || !password || !phoneNumber) {
                 return res.status(400).json({
                     success: false,
                     statusCode: 400,
-                    message: 'Name, email, and password are required',
+                    message: 'Name, email, password, phonenumber are required',
                     data: null
                 });
             }
