@@ -7,6 +7,7 @@ import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
 import UserDashboard from './UserDashboard';
 import AdminDashboard from './AdminDashboard';
+import ServiceProviderDashboard from './ServiceProviderDashboard';
 
 const SignupOrLogin = () => {
     const [show, setShow] = useState(false);
@@ -30,13 +31,22 @@ const SignupOrLogin = () => {
         event.preventDefault();
         const email = event.target[0].value;
         const password = event.target[1].value;
-
+        console.log('role',role)
         try {
-            const userLoginResponse = await axios.post(`http://localhost:3001/api/${role === 'user' ? 'userLogin' : 'adminLogin'}`, {
-                email,
-                password
-            });
-
+            const userLoginResponse = await axios.post(
+                `http://localhost:3001/api/${
+                  role === 'user' 
+                    ? 'userLogin' 
+                    : role === 'admin' 
+                      ? 'adminLogin' 
+                      : 'serviceProviderLogin'
+                }`,
+                {
+                  email,
+                  password
+                }
+              );
+              
             const data = userLoginResponse.data;
             if (data.success) {
                 localStorage.setItem('user', JSON.stringify(data));
@@ -103,6 +113,14 @@ const SignupOrLogin = () => {
             </Container>
         );
     }
+    if(loggedInAs === 'service-provider'){
+        return (
+            <Container className="text-center mt-5">
+                {/* <h1>Welcome to the Service Provider Dashboard</h1> */}
+                <ServiceProviderDashboard/>
+            </Container>
+        );
+    }
 
     return (
         <Container fluid className="min-vh-100 d-flex align-items-center justify-content-center">
@@ -121,15 +139,14 @@ const SignupOrLogin = () => {
                     <Card.Body>
                         <h2 className="mb-4 fw-bold text-center">Login to your Account</h2>
 
-                        <Form.Check
-                            type="switch"
-                            id="custom-switch"
-                            label={`Switch to ${role === 'user' ? 'Admin' : 'User'} Login`}
-                            checked={role === 'admin'}
-                            onChange={(e) => setRole(e.target.checked ? 'admin' : 'user')}
-                            className="mb-4"
-                        />
-
+                        <Form.Group controlId="roleSelect" className="mb-4">
+                        <Form.Label>Select Role</Form.Label>
+                        <Form.Select value={role} onChange={(e) => setRole(e.target.value)}>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            <option value="service-provider">Service Provider</option>
+                        </Form.Select>
+                        </Form.Group>
                         <Form onSubmit={handleLogin}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Email address</Form.Label>
@@ -142,7 +159,7 @@ const SignupOrLogin = () => {
                             </Form.Group>
 
                             <Button variant="primary" type="submit" className="w-100 mb-3">
-                                Login to {role === 'user' ? 'User' : 'Admin'} Dashboard
+                            Login to {role === 'user' ? 'User' : role === 'admin' ? 'Admin' : 'Service Provider'} Dashboard
                             </Button>
 
                             <div className="text-center">

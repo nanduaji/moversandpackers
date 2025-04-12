@@ -185,7 +185,6 @@ const UserDashboard = () => {
             }
         };
 
-        // ✅ Call the fetchCoords function here
         if (trackingStatus?.data?.serviceDetails?.pickupAddress?.zipCode) fetchCoords();
     };
     const cancelOrder = async (bookingId) => {
@@ -208,12 +207,11 @@ const UserDashboard = () => {
                 setUserBookings({ ...userBookings, data: updatedBookings });
                 setOngoingBookings(prevBookings => prevBookings.filter(booking => booking._id !== bookingId));
             }
-        }catch(error) {
-                console.error('Error canceling booking:', error);
-                toast.error("Failed to cancel booking. Please try again.");
-            }
+        } catch (error) {
+            console.error('Error canceling booking:', error);
+            toast.error("Failed to cancel booking. Please try again.");
         }
-
+    }
     const editUser = async () => {
         setShowUserEditModal(true);
     }
@@ -251,7 +249,6 @@ const UserDashboard = () => {
             toast.error('An error occurred while updating user information.');
         }
 
-        // Close the modal after saving
         setShowUserEditModal(false);
     };
     const handleLogOut = () => {

@@ -32,8 +32,6 @@ const AdminDashboard = () => {
                 console.log("Users:", users.data);
                 console.log("Bookings:", bookings.data);
                 console.log("Service Providers:", providers.data);
-
-                // You can now update state if needed
                 setAllUsers(users.data);
                 setAllBookings(bookings.data);
                 setAllServiceProviders(providers.data);
@@ -79,7 +77,6 @@ const AdminDashboard = () => {
         <div className="container py-4">
             <h2 className="mb-4 text-center">Admin Dashboard</h2>
             <Button variant="danger" style={{ marginLeft: '20px' }} onClick={() => handleLogOut()}>Logout</Button>
-            
             <div className="row g-4"  >
                 <div className="col-md-4" style={{ cursor: 'pointer' }} onClick={() => handleUsersClick()}>
                     <div className="card shadow-sm border-0">
@@ -109,7 +106,7 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            
+
             <div className="row mt-5">
                 <div className="col-md-8">
                     <div className="card shadow-sm border-0">
@@ -154,7 +151,7 @@ const AdminDashboard = () => {
                                             <input
                                                 className="form-check-input"
                                                 type="checkbox"
-                                                checked={user.status === "enabled"} 
+                                                checked={user.status === "enabled"}
                                                 onChange={() => handleToggleUserStatus(user._id, user.status)}
                                             />
                                             <label className="form-check-label">
@@ -192,8 +189,8 @@ const AdminDashboard = () => {
                         </tbody>
                     </table>
                 </Modal.Body>
-                </Modal>
-                <Modal show={showServiceProvidersModal} onHide={() => setShowServiceProvidersModal(false)} centered>
+            </Modal>
+            <Modal show={showServiceProvidersModal} onHide={() => setShowServiceProvidersModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>All Service Providers</Modal.Title>
                 </Modal.Header>
@@ -217,7 +214,7 @@ const AdminDashboard = () => {
                         </tbody>
                     </table>
                 </Modal.Body>
-                </Modal>
+            </Modal>
 
         </div>
     );
