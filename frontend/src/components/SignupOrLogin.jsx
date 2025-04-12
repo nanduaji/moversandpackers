@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './SignupOrLogin.module.css';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
@@ -6,15 +6,26 @@ import 'react-toastify/dist/ReactToastify.css';
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
 import UserDashboard from './UserDashboard';
+import AdminDashboard from './AdminDashboard';
 
 const SignupOrLogin = () => {
     const [show, setShow] = useState(false);
     const [role, setRole] = useState('user');
     const [loggedInAs, setLoggedInAs] = useState(''); 
+    const [loading, setLoading] = useState(true);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const token = localStorage.getItem('token');
+    
+        if (user && token) {
+            console.log("user",user)
+            console.log("token",token)
+            setLoggedInAs(user.data.role);
+        }
+    }, []);
     const handleLogin = async (event) => {
         event.preventDefault();
         const email = event.target[0].value;
@@ -31,7 +42,7 @@ const SignupOrLogin = () => {
                 localStorage.setItem('user', JSON.stringify(data));
                 localStorage.setItem('token', data.token);
                 toast.success('Login Successful!');
-                setLoggedInAs(role); // 👈 Set role for rendering dashboard
+                setLoggedInAs(role); 
             } else {
                 toast.error(data.message || 'Login Failed!');
             }
@@ -74,7 +85,7 @@ const SignupOrLogin = () => {
         }
     };
 
-    // 🧠 Render dashboard conditionally
+    
     if (loggedInAs === 'user') {
         return (
             <Container className="text-center mt-5">
@@ -88,6 +99,7 @@ const SignupOrLogin = () => {
         return (
             <Container className="text-center mt-5">
                 {/* <h1>Welcome to the Admin Dashboard</h1> */}
+                <AdminDashboard/>
             </Container>
         );
     }
