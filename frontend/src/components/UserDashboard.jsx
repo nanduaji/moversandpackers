@@ -39,10 +39,9 @@ const UserDashboard = () => {
     const [deliverySuggestions, setDeliverySuggestions] = useState([]);
     const [showBookings, setShowBookings] = useState(true);
     const [trackingStatus, setTrackingStatus] = useState('');
-    const [pickUpAddressCoords,setPickUpAddressCoords] = useState({});
-    const [deliveryAddressCoords,setDeliveryAddressCoords] = useState({});
-    // const pickupAddressZipCode = booking.pickupAddress.zipCode;
-    // const deliveryAddressZipCode = booking.deliveryAddress.zipCode;
+    const [pickUpAddressCoords, setPickUpAddressCoords] = useState({});
+    const [deliveryAddressCoords, setDeliveryAddressCoords] = useState({});
+    const [showUserEditModal, setShowUserEditModal] = useState(false);
     const handleAddressInput = async (query, isPickup = true) => {
         if (query.length < 3) return;
         const endpoint = "https://nominatim.openstreetmap.org/search";
@@ -139,7 +138,7 @@ const UserDashboard = () => {
     }
     const trackOrder = async (bookingId) => {
         setShowBookings(false);
-    
+
         const trackingResponse = await axios.post(
             `http://localhost:3001/api/getStatus/${bookingId}`,
             {},
@@ -149,19 +148,19 @@ const UserDashboard = () => {
                 },
             }
         );
-    
+
         const trackingStatus = trackingResponse.data;
         setTrackingStatus(trackingStatus);
-    
+
         if (trackingResponse.status === 200) {
             toast.success("Tracking information fetched successfully!");
         } else {
             toast.error("Failed to fetch tracking information.");
         }
-    
+
         const fetchCoords = async () => {
             const zip = trackingStatus?.data?.serviceDetails?.pickupAddress?.zipCode;
-    
+
             try {
                 const res = await axios.get('https://nominatim.openstreetmap.org/search', {
                     params: {
@@ -173,7 +172,7 @@ const UserDashboard = () => {
                     },
                     headers: { 'Accept-Language': 'en' },
                 });
-    
+
                 if (res.data.length > 0) {
                     const { lat, lon } = res.data[0];
                     setPickUpAddressCoords([parseFloat(lat), parseFloat(lon)]);
@@ -184,11 +183,55 @@ const UserDashboard = () => {
                 console.error('Geocoding error:', err);
             }
         };
-    
+
         // ✅ Call the fetchCoords function here
-        if(trackingStatus?.data?.serviceDetails?.pickupAddress?.zipCode)fetchCoords();
+        if (trackingStatus?.data?.serviceDetails?.pickupAddress?.zipCode) fetchCoords();
     };
+    const editUser = async () => {
+        setShowUserEditModal(true);
+    }
+    const handleSave = async () => {
+        const updatedUser = {
+            name: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            phoneNumber: document.getElementById('phoneNumber').value,
+        };
     
+        localStorage.setItem('user', JSON.stringify({ ...user, data: updatedUser }));
+    
+        try {
+            const userEditResponse = await axios.post(
+                `http://localhost:3001/api/editUser`,
+                {
+                    email: updatedUser.email,
+                    name: updatedUser.name,
+                    phoneNumber: updatedUser.phoneNumber,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+            );
+    
+            if (userEditResponse.status === 200) {
+                toast.success('User information updated successfully!');
+            } else {
+                toast.error('Failed to update user information.');
+            }
+        } catch (error) {
+            console.error('Error updating user:', error);
+            toast.error('An error occurred while updating user information.');
+        }
+    
+        // Close the modal after saving
+        setShowUserEditModal(false);
+    };
+    const handleLogOut = () => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        window.location.href = '/signuporlogin';
+    }
     return (
         <div className={styles.dashboardWrapper}>
             <ToastContainer />
@@ -197,8 +240,8 @@ const UserDashboard = () => {
                 <div className="text-center mb-4">
                     <Button variant="primary" onClick={() => setShowModal(true)}>Create Booking</Button>
                     <Button variant="primary" style={{ marginLeft: '20px' }} onClick={() => handleShowTracking()}>Track Booking</Button>
+                    <Button variant="danger" style={{ marginLeft: '20px' }} onClick={() => handleLogOut()}>Logout</Button>
                 </div>
-
                 <Row>
                     <Col md={12} sm={12} lg={4} className="mb-4">
                         <Card className={`${styles.glassCard} text-center`}>
@@ -214,7 +257,7 @@ const UserDashboard = () => {
                                     <Card.Text className={styles.subtext}>
                                         <strong>Email:</strong> {email}
                                     </Card.Text>
-                                    <Button variant="outline-primary" size="sm">Edit Profile</Button>
+                                    <Button variant="outline-primary" size="sm" onClick={editUser}>Edit Profile</Button>
                                 </div>
                             </Card.Body>
                         </Card>
@@ -239,8 +282,6 @@ const UserDashboard = () => {
                         </Card>
                     </Col>
                 </Row>
-
-                {/* Recent Activity */}
                 <Row className="mb-4">
                     <Col>
                         <Card className={styles.glassCard}>
@@ -255,7 +296,6 @@ const UserDashboard = () => {
                         </Card>
                     </Col>
                 </Row>
-
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered scrollable>
                     <Modal.Header closeButton className="bg-light">
                         <Modal.Title className="fw-semibold text-primary">📦 Create Booking</Modal.Title>
@@ -339,7 +379,7 @@ const UserDashboard = () => {
                                             </ul>
                                         )}
                                     </Form.Group>
-                                    
+
                                     <Row className="g-2 mb-3">
                                         <Col>
                                             <Form.Control
@@ -366,7 +406,7 @@ const UserDashboard = () => {
                                             />
                                         </Col>
                                     </Row>
-                                    <p  style={{color:'red'}}>Please wait for a few seconds for the suggestions to show for the street</p>
+                                    <p style={{ color: 'red' }}>Please wait for a few seconds for the suggestions to show for the street</p>
                                     <Form.Group className="mb-3">
                                         <Form.Label>Items Description</Form.Label>
                                         <Form.Control
@@ -432,7 +472,7 @@ const UserDashboard = () => {
                                                 onChange={(e) => setBooking({ ...booking, deliveryAddress: { ...booking.deliveryAddress, zipCode: e.target.value } })}
                                             />
                                         </Col>
-                                        <p  style={{color:'red'}}>Please wait for a few seconds for the suggestions to show for the street</p>
+                                        <p style={{ color: 'red' }}>Please wait for a few seconds for the suggestions to show for the street</p>
                                     </Row>
 
                                     <Form.Group className="mb-3">
@@ -523,7 +563,7 @@ const UserDashboard = () => {
                                 </div>
                             </div>
                             <br />
-                            <DeliveryTrackingMap pickUpAddressCoords={pickUpAddressCoords}/>
+                            <DeliveryTrackingMap pickUpAddressCoords={pickUpAddressCoords} />
                         </div>
 
                         {/* Tracking Info */}
@@ -570,7 +610,77 @@ const UserDashboard = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+                <Modal show={showUserEditModal} onHide={() => setShowUserEditModal(false)} size="lg" centered scrollable>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Edit User Information</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Form.Group className="mb-3" controlId="username">
+                                <Form.Label>Username</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    defaultValue={username}
+                                    placeholder="Enter your username"
+                                />
+                            </Form.Group>
 
+                            <Form.Group className="mb-3" controlId="email">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    defaultValue={email}
+                                    placeholder="Enter your email"
+                                    disabled
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="phoneNumber">
+                                <Form.Label>Phone Number</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    defaultValue={phoneNumber}
+                                    placeholder="Enter your phone number"
+                                />
+                            </Form.Group>
+
+                            {/* <Form.Group className="mb-3" controlId="address">
+                                <Form.Label>Address</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    defaultValue={address}
+                                    placeholder="Enter your address"
+                                />
+                            </Form.Group> */}
+
+                            {/* <Form.Group className="mb-3" controlId="joinDate">
+                                <Form.Label>Join Date</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={joinDate}
+                                    disabled
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="role">
+                                <Form.Label>Role</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={role}
+                                    disabled
+                                />
+                            </Form.Group> */}
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowUserEditModal(false)}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={handleSave}>
+                            Save Changes
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
 
             </Container>
