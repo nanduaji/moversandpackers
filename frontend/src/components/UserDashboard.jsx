@@ -137,7 +137,7 @@ const UserDashboard = () => {
                 </div>
 
                 <Row>
-                    <Col md={4} sm={12} className="mb-4">
+                    <Col md={12} sm={12} lg={4} className="mb-4">
                         <Card className={`${styles.glassCard} text-center`}>
                             <Card.Body className="d-flex align-items-center">
                                 {/* Left side: Avatar and Name */}
@@ -156,7 +156,7 @@ const UserDashboard = () => {
                             </Card.Body>
                         </Card>
                     </Col>
-                    <Col md={4} sm={12} className="mb-4">
+                    <Col md={12} sm={12} lg={4} className="mb-4">
                         <Card className={`${styles.glassCard} text-center`}>
                             <Card.Body>
                                 <FaTruck size={40} className="mb-3 text-primary" />
@@ -166,7 +166,7 @@ const UserDashboard = () => {
                             </Card.Body>
                         </Card>
                     </Col>
-                    <Col md={4} sm={12} className="mb-4">
+                    <Col md={12} sm={12} lg={4} className="mb-4">
                         <Card className={`${styles.glassCard} text-center`}>
                             <Card.Body>
                                 <FaClipboardList size={40} className="mb-3 text-success" />
