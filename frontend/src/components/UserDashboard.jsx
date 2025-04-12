@@ -5,6 +5,7 @@ import styles from './UserDashboard.module.css';
 import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import { Navigate } from 'react-router-dom';
+import DeliveryTrackingMap from './DeliveryTrackingMap';
 
 const UserDashboard = () => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -15,6 +16,7 @@ const UserDashboard = () => {
     const joinDate = user?.data?.joinDate || "Unknown";
     const role = user?.data?.role || "User";
     const [showModal, setShowModal] = useState(false);
+    const [showTrackingModal, setShowTrackingModal] = useState(false);
     const [booking, setBooking] = useState({
         customerName: '',
         customerEmail: '',
@@ -35,6 +37,12 @@ const UserDashboard = () => {
     const [ongoingBookings, setOngoingBookings] = useState([]);
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [deliverySuggestions, setDeliverySuggestions] = useState([]);
+    const [showBookings, setShowBookings] = useState(true);
+    const [trackingStatus, setTrackingStatus] = useState('');
+    const [pickUpAddressCoords,setPickUpAddressCoords] = useState({});
+    const [deliveryAddressCoords,setDeliveryAddressCoords] = useState({});
+    // const pickupAddressZipCode = booking.pickupAddress.zipCode;
+    // const deliveryAddressZipCode = booking.deliveryAddress.zipCode;
     const handleAddressInput = async (query, isPickup = true) => {
         if (query.length < 3) return;
         const endpoint = "https://nominatim.openstreetmap.org/search";
@@ -125,7 +133,62 @@ const UserDashboard = () => {
         }
         ongoingBookings();
     }, [])
-
+    const handleShowTracking = () => {
+        setShowTrackingModal(true);
+        setShowBookings(true)
+    }
+    const trackOrder = async (bookingId) => {
+        setShowBookings(false);
+    
+        const trackingResponse = await axios.post(
+            `http://localhost:3001/api/getStatus/${bookingId}`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${user.token}`,
+                },
+            }
+        );
+    
+        const trackingStatus = trackingResponse.data;
+        setTrackingStatus(trackingStatus);
+    
+        if (trackingResponse.status === 200) {
+            toast.success("Tracking information fetched successfully!");
+        } else {
+            toast.error("Failed to fetch tracking information.");
+        }
+    
+        const fetchCoords = async () => {
+            const zip = trackingStatus?.data?.serviceDetails?.pickupAddress?.zipCode;
+    
+            try {
+                const res = await axios.get('https://nominatim.openstreetmap.org/search', {
+                    params: {
+                        postalcode: zip,
+                        country: 'INDIA',
+                        format: 'json',
+                        addressdetails: 1,
+                        limit: 1,
+                    },
+                    headers: { 'Accept-Language': 'en' },
+                });
+    
+                if (res.data.length > 0) {
+                    const { lat, lon } = res.data[0];
+                    setPickUpAddressCoords([parseFloat(lat), parseFloat(lon)]);
+                } else {
+                    console.warn('No coordinates found for the given ZIP code.');
+                }
+            } catch (err) {
+                console.error('Geocoding error:', err);
+            }
+        };
+    
+        // ✅ Call the fetchCoords function here
+        if(trackingStatus?.data?.serviceDetails?.pickupAddress?.zipCode)fetchCoords();
+    };
+    
     return (
         <div className={styles.dashboardWrapper}>
             <ToastContainer />
@@ -133,7 +196,7 @@ const UserDashboard = () => {
                 <h2 className={`text-center fw-bold mb-5 ${styles.heading}`}>Welcome back, {username} 👋</h2>
                 <div className="text-center mb-4">
                     <Button variant="primary" onClick={() => setShowModal(true)}>Create Booking</Button>
-                    <Button variant="primary" style={{marginLeft:'20px'}}>Track Booking</Button>
+                    <Button variant="primary" style={{ marginLeft: '20px' }} onClick={() => handleShowTracking()}>Track Booking</Button>
                 </div>
 
                 <Row>
@@ -276,6 +339,7 @@ const UserDashboard = () => {
                                             </ul>
                                         )}
                                     </Form.Group>
+                                    
                                     <Row className="g-2 mb-3">
                                         <Col>
                                             <Form.Control
@@ -302,7 +366,7 @@ const UserDashboard = () => {
                                             />
                                         </Col>
                                     </Row>
-
+                                    <p  style={{color:'red'}}>Please wait for a few seconds for the suggestions to show for the street</p>
                                     <Form.Group className="mb-3">
                                         <Form.Label>Items Description</Form.Label>
                                         <Form.Control
@@ -368,6 +432,7 @@ const UserDashboard = () => {
                                                 onChange={(e) => setBooking({ ...booking, deliveryAddress: { ...booking.deliveryAddress, zipCode: e.target.value } })}
                                             />
                                         </Col>
+                                        <p  style={{color:'red'}}>Please wait for a few seconds for the suggestions to show for the street</p>
                                     </Row>
 
                                     <Form.Group className="mb-3">
@@ -415,6 +480,97 @@ const UserDashboard = () => {
                         </Form>
                     </Modal.Body>
                 </Modal>
+                <Modal
+                    show={showTrackingModal}
+                    onHide={() => setShowTrackingModal(false)}
+                    size="lg"
+                    centered
+                    scrollable
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>Delivery Tracking</Modal.Title>
+                    </Modal.Header>
+                    {showBookings === true ? (
+                        <div className="bg-light p-3">
+                            <h5 className="mb-3">Your Bookings</h5>
+                            <ul className="list-group">
+                                {userBookings?.data?.map((booking, index) => (
+                                    <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>Order ID:</strong> {booking._id} <br />
+                                            <strong>Status:</strong> {booking.status}
+                                        </div>
+                                        <Button variant="primary" onClick={() => trackOrder(booking._id)}>Track</Button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ) : <Modal.Body>
+                        {/* Order Status Progress */}
+                        <div className="mb-4">
+                            <h5 className="mb-3">Delivery Progress</h5>
+
+                            <div className="progress" style={{ height: '25px' }}>
+                                <div
+                                    className="progress-bar bg-success"
+                                    role="progressbar"
+                                    style={{ width: trackingStatus.status === 'Scheduled' ? '10%' : trackingStatus.status === 'In Transit' ? '60%' : '100%' }}
+                                    aria-valuenow="60"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                >
+                                    {trackingStatus.status}
+                                </div>
+                            </div>
+                            <br />
+                            <DeliveryTrackingMap pickUpAddressCoords={pickUpAddressCoords}/>
+                        </div>
+
+                        {/* Tracking Info */}
+                        <div className="mb-4">
+                            <h5 className="mb-3">Tracking Details</h5>
+                            <ul className="list-group">
+                                <li className="list-group-item">
+                                    <strong>Tracking ID:</strong> {trackingStatus?.data?.serviceDetails?._id}
+                                </li>
+                                <li className="list-group-item">
+                                    <strong>Sender:</strong> {trackingStatus?.data?.serviceDetails?.customerName}
+                                </li>
+                                <li className="list-group-item">
+                                    <strong>Pickup Address:</strong><br />
+                                    {trackingStatus?.data?.serviceDetails?.pickupAddress?.street}<br />
+                                    {trackingStatus?.data?.serviceDetails?.pickupAddress?.city}, {trackingStatus?.data?.serviceDetails?.pickupAddress?.state} {trackingStatus?.data?.serviceDetails?.pickupAddress?.zipCode}
+                                </li>
+                                <li className="list-group-item">
+                                    <strong>Delivery Address:</strong><br />
+                                    {trackingStatus?.data?.serviceDetails?.deliveryAddress?.street}<br />
+                                    {trackingStatus?.data?.serviceDetails?.deliveryAddress?.city}, {trackingStatus?.data?.serviceDetails?.deliveryAddress?.state} {trackingStatus?.data?.serviceDetails?.deliveryAddress?.zipCode}
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Location History */}
+                        <div>
+                            <h5 className="mb-3">Shipment History</h5>
+                            <ul className="timeline list-unstyled">
+                                <li className="mb-2">
+                                    <strong>April 12 -</strong> Package left the Kollam facility
+                                </li>
+                                <li className="mb-2">
+                                    <strong>April 10 -</strong> Shipment booked
+                                </li>
+                            </ul>
+                        </div>
+                    </Modal.Body>}
+
+
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowTrackingModal(false)}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
 
 
             </Container>

@@ -7,6 +7,8 @@ import AboutUs from "./components/AboutUs";
 import Services from "./components/Services";
 import ContactUs from "./components/ContactUs";
 import SignupOrLogin from "./components/SignupOrLogin";
+import 'leaflet/dist/leaflet.css';
+
 
 function App() {
   return (
