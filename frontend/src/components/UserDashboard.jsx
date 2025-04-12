@@ -9,7 +9,11 @@ import { Navigate } from 'react-router-dom';
 const UserDashboard = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     const username = user?.data?.name || "User";
-    const email = user?.email || "user@example.com";
+    const email = user?.data?.email || "user@example.com";
+    const phoneNumber = user?.data?.phoneNumber || "0000000000";
+    const address = user?.data?.address || "Not Provided";
+    const joinDate = user?.data?.joinDate || "Unknown";
+    const role = user?.data?.role || "User";
     const [showModal, setShowModal] = useState(false);
     const [booking, setBooking] = useState({
         customerName: '',
@@ -128,11 +132,30 @@ const UserDashboard = () => {
             <Container className="py-5">
                 <h2 className={`text-center fw-bold mb-5 ${styles.heading}`}>Welcome back, {username} 👋</h2>
                 <div className="text-center mb-4">
-                    <Button variant="primary" onClick={() => setShowModal(true)}>+ Create Booking</Button>
+                    <Button variant="primary" onClick={() => setShowModal(true)}>Create Booking</Button>
+                    <Button variant="primary" style={{marginLeft:'20px'}}>Track Booking</Button>
                 </div>
 
-                {/* Quick Stats */}
-                <Row className="mb-5">
+                <Row>
+                    <Col md={4} sm={12} className="mb-4">
+                        <Card className={`${styles.glassCard} text-center`}>
+                            <Card.Body className="d-flex align-items-center">
+                                {/* Left side: Avatar and Name */}
+                                <div className="d-flex flex-column align-items-start me-3">
+                                    <FaUserCircle size={60} className="mb-3 text-primary" />
+                                    <Card.Title className="fw-semibold">{username}</Card.Title>
+                                </div>
+
+                                {/* Right side: Email and Edit Button */}
+                                <div className="d-flex flex-column align-items-end">
+                                    <Card.Text className={styles.subtext}>
+                                        <strong>Email:</strong> {email}
+                                    </Card.Text>
+                                    <Button variant="outline-primary" size="sm">Edit Profile</Button>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
                     <Col md={4} sm={12} className="mb-4">
                         <Card className={`${styles.glassCard} text-center`}>
                             <Card.Body>
@@ -149,15 +172,6 @@ const UserDashboard = () => {
                                 <FaClipboardList size={40} className="mb-3 text-success" />
                                 <Card.Title>Total Orders</Card.Title>
                                 <Card.Text className={styles.subtext}>{userBookings?.data?.length} orders placed</Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                    <Col md={4} sm={12} className="mb-4">
-                        <Card className={`${styles.glassCard} text-center`}>
-                            <Card.Body>
-                                <FaBell size={40} className="mb-3 text-warning" />
-                                <Card.Title>Notifications</Card.Title>
-                                <Card.Text className={styles.subtext}>3 new alerts</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -179,21 +193,6 @@ const UserDashboard = () => {
                     </Col>
                 </Row>
 
-                {/* Profile */}
-                <Row>
-                    <Col md={6}>
-                        <Card className={`${styles.glassCard} d-flex flex-row align-items-center p-3`}>
-                            <FaUserCircle size={80} className="text-secondary me-4" />
-                            <div>
-                                <h5 className="mb-1">{username}</h5>
-                                <p className="mb-2">{email}</p>
-                                <Button variant="outline-light" className={styles.editButton}>
-                                    Edit Profile
-                                </Button>
-                            </div>
-                        </Card>
-                    </Col>
-                </Row>
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered scrollable>
                     <Modal.Header closeButton className="bg-light">
                         <Modal.Title className="fw-semibold text-primary">📦 Create Booking</Modal.Title>
