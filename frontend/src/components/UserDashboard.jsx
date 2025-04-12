@@ -39,7 +39,7 @@ const UserDashboard = () => {
     const [deliverySuggestions, setDeliverySuggestions] = useState([]);
     const [showBookings, setShowBookings] = useState(true);
     const [trackingStatus, setTrackingStatus] = useState('');
-    const [pickUpAddressCoords, setPickUpAddressCoords] = useState({});
+    const [pickUpAddressCoords, setPickUpAddressCoords] = useState(null);
     const [deliveryAddressCoords, setDeliveryAddressCoords] = useState({});
     const [showUserEditModal, setShowUserEditModal] = useState(false);
     const handleAddressInput = async (query, isPickup = true) => {
@@ -175,6 +175,7 @@ const UserDashboard = () => {
 
                 if (res.data.length > 0) {
                     const { lat, lon } = res.data[0];
+                    console.log("lat", lat, "lon", lon)
                     setPickUpAddressCoords([parseFloat(lat), parseFloat(lon)]);
                 } else {
                     console.warn('No coordinates found for the given ZIP code.');
@@ -187,6 +188,32 @@ const UserDashboard = () => {
         // ✅ Call the fetchCoords function here
         if (trackingStatus?.data?.serviceDetails?.pickupAddress?.zipCode) fetchCoords();
     };
+    const cancelOrder = async (bookingId) => {
+        const confirm = window.confirm("Are you sure you want to cancel this booking?");
+        if (!confirm) return;
+        try {
+            const cancelResponse = await axios.post(
+                `http://localhost:3001/api/cancelBooking/${bookingId}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+            );
+            if (cancelResponse.status === 200) {
+                toast.success("Booking canceled successfully!");
+                console.log("userBookings", userBookings.data)
+                const updatedBookings = userBookings.data.filter(booking => booking._id !== bookingId);
+                setUserBookings({ ...userBookings, data: updatedBookings });
+                setOngoingBookings(prevBookings => prevBookings.filter(booking => booking._id !== bookingId));
+            }
+        }catch(error) {
+                console.error('Error canceling booking:', error);
+                toast.error("Failed to cancel booking. Please try again.");
+            }
+        }
+
     const editUser = async () => {
         setShowUserEditModal(true);
     }
@@ -196,9 +223,9 @@ const UserDashboard = () => {
             email: document.getElementById('email').value,
             phoneNumber: document.getElementById('phoneNumber').value,
         };
-    
+
         localStorage.setItem('user', JSON.stringify({ ...user, data: updatedUser }));
-    
+
         try {
             const userEditResponse = await axios.post(
                 `http://localhost:3001/api/editUser`,
@@ -213,7 +240,7 @@ const UserDashboard = () => {
                     },
                 }
             );
-    
+
             if (userEditResponse.status === 200) {
                 toast.success('User information updated successfully!');
             } else {
@@ -223,7 +250,7 @@ const UserDashboard = () => {
             console.error('Error updating user:', error);
             toast.error('An error occurred while updating user information.');
         }
-    
+
         // Close the modal after saving
         setShowUserEditModal(false);
     };
@@ -541,6 +568,7 @@ const UserDashboard = () => {
                                             <strong>Status:</strong> {booking.status}
                                         </div>
                                         <Button variant="primary" onClick={() => trackOrder(booking._id)}>Track</Button>
+                                        <Button variant="danger" onClick={() => cancelOrder(booking._id)}>Cancel</Button>
                                     </li>
                                 ))}
                             </ul>
@@ -563,7 +591,11 @@ const UserDashboard = () => {
                                 </div>
                             </div>
                             <br />
-                            <DeliveryTrackingMap pickUpAddressCoords={pickUpAddressCoords} />
+                            {pickUpAddressCoords ? (
+                                <DeliveryTrackingMap pickUpAddressCoords={pickUpAddressCoords} />
+                            ) : (
+                                <p>Loading coordinates...</p>
+                            )}
                         </div>
 
                         {/* Tracking Info */}
