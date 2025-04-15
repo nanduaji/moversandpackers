@@ -26,7 +26,7 @@ routes.post("/updateBookingStatus/:bookingId", authMiddleware, updateBookingStat
 
 
 // SERVICE PROVIDER ROUTES
-routes.post("/addServiceProvider", authMiddleware, addServiceProvider);
+routes.post("/addServiceProvider", addServiceProvider);
 routes.post("/serviceProviderLogin", serviceProviderLogin);
 routes.post("/getMyBookings/:providerId", authMiddleware, getMyBookings);
  
