@@ -150,6 +150,7 @@ const UserDashboard = () => {
         );
 
         const trackingStatus = trackingResponse.data;
+        console.log("trackingStatus", trackingResponse.data)
         setTrackingStatus(trackingStatus);
 
         if (trackingResponse.status === 200) {
@@ -577,15 +578,25 @@ const UserDashboard = () => {
 
                             <div className="progress" style={{ height: '25px' }}>
                                 <div
-                                    className="progress-bar bg-success"
+                                    className={`progress-bar ${trackingStatus.status === 'Cancelled' ? 'bg-danger' : 'bg-success'}`}
                                     role="progressbar"
-                                    style={{ width: trackingStatus.status === 'Scheduled' ? '10%' : trackingStatus.status === 'In Transit' ? '60%' : '100%' }}
+                                    style={{
+                                        width:
+                                            trackingStatus.status === 'Scheduled'
+                                                ? '10%'
+                                                : trackingStatus.status === 'In Transit'
+                                                    ? '60%'
+                                                    : trackingStatus.status === 'Pending'
+                                                        ? '0%'
+                                                        : '100%',
+                                    }}
                                     aria-valuenow="60"
                                     aria-valuemin="0"
                                     aria-valuemax="100"
                                 >
                                     {trackingStatus.status}
                                 </div>
+
                             </div>
                             <br />
                             {pickUpAddressCoords ? (

@@ -3,6 +3,7 @@ const Services = require('../models/serviceModel');
 const ServiceProviders = require('../models/serviceProviderModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const adminController = {
     addAdmin: async (req, res) => {
@@ -144,7 +145,7 @@ const adminController = {
     updateBookingStatus: async (req, res) => {
         try {
             const { bookingId } = req.params;
-            const { status } = req.body;
+            const { status,customerEmail } = req.body;
 
             // Check if bookingId and status are provided
             if (!bookingId || !status) {
@@ -167,12 +168,48 @@ const adminController = {
                 });
             }
 
+            var transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                  user: process.env.EMAIL_USER,
+                  pass: process.env.EMAIL_PASS
+                  
+                }
+              });
+              
+              const sendBookingUpdateEmail = (customerEmail, bookingId, status) => {
+                
+                const emailContent = `
+                  <h3>Booking Status Update</h3>
+                  <p>Dear Customer,</p>
+                  <p>Your booking with ID <strong>${bookingId}</strong> has been updated.</p>
+                  <p><strong>Status:</strong> ${status}</p>
+                  <p>Thank you for choosing us!</p>
+                  <p>Best regards, <br />Your Company</p>
+                `;
+              
+                const mailOptions = {
+                  from: process.env.EMAIL_USER,
+                  to: customerEmail,
+                  subject: `Booking Status Update - ${bookingId}`,
+                  html: emailContent,  
+                };
+              
+                transporter.sendMail(mailOptions, (error, info) => {
+                  if (error) {
+                    return console.log('Error sending email:', error);
+                  }
+                  console.log('Email sent: ' + info.response);
+                });
+              };
+            sendBookingUpdateEmail(customerEmail, bookingId, status);
             res.status(200).json({
                 success: true,
                 statusCode: 200,
                 message: 'Booking status updated successfully',
                 data: updatedBooking
             });
+
         } catch (err) {
             res.status(500).json({
                 success: false,

@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
-
+import { toast, ToastContainer } from 'react-toastify';
 
 
 const AdminDashboard = () => {
@@ -59,20 +59,41 @@ const AdminDashboard = () => {
     }
     const handleToggleUserStatus = async (userId, currentStatus) => {
         const newStatus = currentStatus === "enabled" ? "disabled" : "enabled";
-        console.log("Toggling user status:", userId, "to", newStatus);
-        // try {
-        //     const headers = {
-        //         Authorization: `Bearer ${user.token}`,
-        //     };
-        //     const response = await axios.post(`http://localhost:3001/api/editUser`, { userId, status: newStatus }, { headers });
-        //     console.log("User status updated:", response.data);
-        //     setAllUsers((prevUsers) =>
-        //         prevUsers.map((user) => (user._id === userId ? { ...user, status: newStatus } : user))
-        //     );
-        // } catch (error) {
-        //     console.error("Error updating user status:", error);
-        // }
     }
+    const handleUpdateStatus = async (bookingId, currentStatus, customerEmail) => {
+        try {
+            const bookingStatusUpdateResponse = await axios.post(
+                `http://localhost:3001/api/updateBookingStatus/${bookingId}`,
+                {
+                    status: currentStatus,
+                    customerEmail: customerEmail
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+            );
+            const updatedStatus = bookingStatusUpdateResponse.data.status || currentStatus;
+
+            setAllBookings((prevBookings) =>
+                prevBookings.map((booking) =>
+                    booking._id === bookingId
+                        ? { ...booking, status: updatedStatus }
+                        : booking
+                )
+            );
+            toast.success("Booking status updated");
+        } catch (error) {
+            console.error("Error updating booking status:", error);
+        }
+    };
+
     return (
         <div className="container py-4">
             <h2 className="mb-4 text-center">Admin Dashboard</h2>
@@ -112,7 +133,7 @@ const AdminDashboard = () => {
                     <div className="card shadow-sm border-0">
                         <div className="card-body">
                             <h5 className="card-title">Recent Bookings</h5>
-                            <p className="text-muted">This section can show latest bookings in a table/list view.</p>
+                            <p className="text-muted"></p>
                         </div>
                     </div>
                 </div>
@@ -121,7 +142,7 @@ const AdminDashboard = () => {
                     <div className="card shadow-sm border-0">
                         <div className="card-body">
                             <h5 className="card-title">User Activity</h5>
-                            <p className="text-muted">You can integrate charts or recent login history here.</p>
+                            <p className="text-muted"></p>
                         </div>
                     </div>
                 </div>
@@ -159,6 +180,7 @@ const AdminDashboard = () => {
                                             </label>
                                         </div>
                                     </td>
+
                                 </tr>
                             ))}
                         </tbody>
@@ -183,7 +205,19 @@ const AdminDashboard = () => {
                                 <tr key={index}>
                                     <td>{booking._id}</td>
                                     <td>{booking.customerName}</td>
-                                    <td>{booking.status}</td>
+                                    <td>
+                                        <select
+                                            className="px-3 py-1 rounded-lg border border-gray-300 bg-white shadow-sm text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            value={booking.status}
+                                            onChange={(e) => handleUpdateStatus(booking._id, e.target.value, booking.customerEmail)}
+                                        >
+                                            <option value="Pending">Pending</option>
+                                            <option value="Scheduled">Scheduled</option>
+                                            <option value="In Transit">In Transit</option>
+                                            <option value="Delivered">Delivered</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -215,7 +249,7 @@ const AdminDashboard = () => {
                     </table>
                 </Modal.Body>
             </Modal>
-
+            <ToastContainer position="top-right" autoClose={2000} />
         </div>
     );
 };
