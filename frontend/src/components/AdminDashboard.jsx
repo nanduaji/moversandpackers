@@ -20,9 +20,9 @@ const AdminDashboard = () => {
                 };
 
                 const [usersRes, bookingsRes, providersRes] = await Promise.all([
-                    axios.post('http://localhost:3001/api/getUsers', {}, { headers }),
-                    axios.post('http://localhost:3001/api/getAllBookings', {}, { headers }),
-                    axios.post('http://localhost:3001/api/getAllServiceProviders', {}, { headers }),
+                    axios.post('https://moversandpackers.onrender.com/api/getUsers', {}, { headers }),
+                    axios.post('https://moversandpackers.onrender.com/api/getAllBookings', {}, { headers }),
+                    axios.post('https://moversandpackers.onrender.com/api/getAllServiceProviders', {}, { headers }),
                 ]);
 
                 const users = usersRes.data;
@@ -63,7 +63,7 @@ const AdminDashboard = () => {
     const handleUpdateStatus = async (bookingId, currentStatus, customerEmail) => {
         try {
             const bookingStatusUpdateResponse = await axios.post(
-                `http://localhost:3001/api/updateBookingStatus/${bookingId}`,
+                `https://moversandpackers.onrender.com/api/updateBookingStatus/${bookingId}`,
                 {
                     status: currentStatus,
                     customerEmail: customerEmail

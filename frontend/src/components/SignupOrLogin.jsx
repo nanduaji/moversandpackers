@@ -32,7 +32,7 @@ const SignupOrLogin = () => {
         console.log('role', role)
         try {
             const userLoginResponse = await axios.post(
-                `http://localhost:3001/api/${role === 'user'
+                `https://moversandpackers.onrender.com/api/${role === 'user'
                     ? 'userLogin'
                     : role === 'admin'
                         ? 'adminLogin'
@@ -77,7 +77,7 @@ const SignupOrLogin = () => {
         try {
             const endPoint = role === 'user' ? 'addUser' : role === 'admin' ? 'addAdmin' : 'addServiceProvider';
             
-            const userRegisterResponse = await axios.post(`http://localhost:3001/api/${endPoint}`, {
+            const userRegisterResponse = await axios.post(`https://moversandpackers.onrender.com/api/${endPoint}`, {
                 name,
                 email,
                 password,

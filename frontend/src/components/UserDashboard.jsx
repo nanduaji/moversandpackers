@@ -82,7 +82,7 @@ const UserDashboard = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const bookingResponse = await axios.post(`http://localhost:3001/api/bookService`, booking, {
+            const bookingResponse = await axios.post(`https://moversandpackers.onrender.com/api/bookService`, booking, {
                 headers: {
                     Authorization: `Bearer ${user.token}`,
                 },
@@ -99,7 +99,7 @@ const UserDashboard = () => {
     useEffect(() => {
         const userBookings = async () => {
             try {
-                const response = await axios.post(`http://localhost:3001/api/userBookings/${user.data.email}`, {}, {
+                const response = await axios.post(`https://moversandpackers.onrender.com/api/userBookings/${user.data.email}`, {}, {
                     headers: {
                         Authorization: `Bearer ${user.token}`,
                     },
@@ -116,7 +116,7 @@ const UserDashboard = () => {
         userBookings();
         const ongoingBookings = async () => {
             try {
-                const response = await axios.post(`http://localhost:3001/api/userBookings/${user.data.email}`, {}, {
+                const response = await axios.post(`https://moversandpackers.onrender.com/api/userBookings/${user.data.email}`, {}, {
                     headers: {
                         Authorization: `Bearer ${user.token}`,
                     },
@@ -143,7 +143,7 @@ const UserDashboard = () => {
         setShowBookings(false);
 
         const trackingResponse = await axios.post(
-            `http://localhost:3001/api/getStatus/${bookingId}`,
+            `https://moversandpackers.onrender.com/api/getStatus/${bookingId}`,
             {},
             {
                 headers: {
@@ -196,7 +196,7 @@ const UserDashboard = () => {
         if (!confirm) return;
         try {
             const cancelResponse = await axios.post(
-                `http://localhost:3001/api/cancelBooking/${bookingId}`,
+                `https://moversandpackers.onrender.com/api/cancelBooking/${bookingId}`,
                 {},
                 {
                     headers: {
@@ -230,7 +230,7 @@ const UserDashboard = () => {
 
         try {
             const userEditResponse = await axios.post(
-                `http://localhost:3001/api/editUser`,
+                `https://moversandpackers.onrender.com/api/editUser`,
                 {
                     email: updatedUser.email,
                     name: updatedUser.name,

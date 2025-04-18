@@ -17,9 +17,9 @@ const ServiceProviderDashboard = () => {
         };
 
         const [bookingsRes, earningsRes, ratingRes] = await Promise.all([
-          axios.post(`http://localhost:3001/api/getMyBookings/${user.data.id}`, {}, { headers }),
-        //   axios.post("http://localhost:3001/api/getEarnings", {}, { headers }),
-        //   axios.post("http://localhost:3001/api/getRating", {}, { headers }),
+          axios.post(`https://moversandpackers.onrender.com/api/getMyBookings/${user.data.id}`, {}, { headers }),
+        //   axios.post("https://moversandpackers.onrender.com/api/getEarnings", {}, { headers }),
+        //   axios.post("https://moversandpackers.onrender.com/api/getRating", {}, { headers }),
         ]);
         console.log("bookingsRes",bookingsRes.data.data)
         setBookings(bookingsRes.data.data || []);
