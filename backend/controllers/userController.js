@@ -3,6 +3,7 @@ const Service = require('../models/serviceModel');
 const ServiceProvider = require('../models/serviceProviderModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const userController = {
     addUser: async (req, res) => {
@@ -36,6 +37,45 @@ const userController = {
             // Create new user
             const newUser = new User({ name, email, password: encryptedPassword, role: "user", phoneNumber });
             await newUser.save();
+
+
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
+            
+            const sendUserCreationEmail = (email) => {
+                const emailContent = `
+                    <h2>Welcome to Our Platform!</h2>
+                    <p>Dear User,</p>
+                    <p>Your account has been successfully created.</p>
+                    <p>We're excited to have you on board! You can now log in and start using our services.</p>
+                    <p>If you have any questions, feel free to reach out to our support team.</p>
+                    <br />
+                    <p>Best regards, <br /><strong>Your Company Team</strong></p>
+                `;
+            
+                const mailOptions = {
+                    from: process.env.EMAIL_USER,
+                    to: email,
+                    subject: 'Welcome! Your Account Has Been Created',
+                    html: emailContent,
+                };
+            
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        return console.log('Error sending email:', error);
+                    }
+                    console.log('User creation email sent: ' + info.response);
+                });
+            };
+            
+            sendUserCreationEmail(email);
+            
+
 
             res.status(201).json({
                 success: true,
@@ -118,7 +158,7 @@ const userController = {
                 statusCode: 200,
                 message: 'Login successful',
                 token,
-                data: { id: user._id, name: user.name, email: user.email, role: user.role,phoneNumber:user.phoneNumber }
+                data: { id: user._id, name: user.name, email: user.email, role: user.role, phoneNumber: user.phoneNumber }
             });
         } catch (err) {
             res.status(500).json({
@@ -184,7 +224,6 @@ const userController = {
         }
     },
     bookService: async (req, res) => {
-        console.log("req.body", req.body)
         try {
             const {
                 customerName,
@@ -201,9 +240,9 @@ const userController = {
                 deliveryDate,
                 finalPrice,
                 status,
-            } = req.body
-            const availableSP = await ServiceProvider.findOne({ location: pickupCity });
-            console.log("availableSP", availableSP)
+            } = req.body;
+    
+            const availableSP = await ServiceProvider.findOne({ location: pickupCity }) || await ServiceProvider.findOne();;
             if (!availableSP) {
                 return res.status(404).json({
                     success: false,
@@ -211,7 +250,7 @@ const userController = {
                     message: 'No Service Provider available in your area'
                 });
             }
-
+    
             const newService = new Service({
                 customerName,
                 customerEmail,
@@ -227,9 +266,57 @@ const userController = {
                 deliveryDate,
                 finalPrice,
                 status,
-                serviceProviderId: availableSP._id 
+                serviceProviderId: availableSP?._id || "67effd0776c7beb7261f3607"
             });
+    
             await newService.save();
+    
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
+    
+            const emailContent = `
+                <h2>Service Booking Confirmation</h2>
+                <p>Dear ${customerName},</p>
+                <p>Your booking has been successfully confirmed with the following details:</p>
+                <ul>
+                    <li><strong>Booking ID:</strong> ${newService._id}</li>
+                    <li><strong>Service Type:</strong> ${serviceType}</li>
+                    <li><strong>Pickup Address:</strong> ${pickupStreet}, ${pickupCity}, ${pickupState} - ${pickupZipCode}</li>
+                    <li><strong>Delivery Address:</strong> ${deliveryStreet}, ${deliveryCity}, ${deliveryState} - ${deliveryZipCode}</li>
+                    <li><strong>Pickup Date:</strong> ${pickupDate}</li>
+                    <li><strong>Estimated Weight:</strong> ${estimatedWeight}</li>
+                    <li><strong>Items Description:</strong> ${itemsDescription}</li>
+                    <li><strong>Estimated Price:</strong> ₹${priceEstimate}</li>
+                    <li><strong>Payment Status:</strong> ${paymentStatus}</li>
+                    <li><strong>Delivery Date:</strong> ${deliveryDate}</li>
+                    <li><strong>Final Price:</strong> ₹${finalPrice}</li>
+                    <li><strong>Status:</strong> ${status}</li>
+                    <li><strong>Assigned Service Provider:</strong> ${availableSP?.name}</li>
+                </ul>
+                <p>Thank you for choosing our service!</p>
+                <p>Best regards,<br />Your Company</p>
+            `;
+    
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: customerEmail,
+                subject: 'Service Booking Confirmation',
+                html: emailContent
+            };
+    
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log('Error sending confirmation email:', error);
+                } else {
+                    console.log('Booking confirmation email sent:', info.response);
+                }
+            });
+    
             res.status(201).json({
                 success: true,
                 statusCode: 201,
