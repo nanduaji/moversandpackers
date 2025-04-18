@@ -1,7 +1,10 @@
 const express = require('express');
 var cors = require('cors')
 const app = express();
-app.use(cors())
+app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://moversandpackers-frontend.onrender.com'],
+}));
 require('dotenv').config();
 const dbConfig = require('./dbconfig');
 // dbConfig.connect();
