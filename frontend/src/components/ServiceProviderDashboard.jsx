@@ -83,8 +83,8 @@ const ServiceProviderDashboard = () => {
               <Card className="border-start border-4 border-primary shadow-sm">
                 <Card.Body>
                   <h5>{booking.service}</h5>
-                  <p className="mb-1"><strong>Date:</strong> {new Date(booking.date).toLocaleDateString()}</p>
-                  <p className="mb-1"><strong>Client:</strong> {booking.clientName}</p>
+                  <p className="mb-1"><strong>Date:</strong> {new Date(booking.pickupDate).toLocaleDateString()}</p>
+                  <p className="mb-1"><strong>Client:</strong> {booking.customerName}</p>
                   <Badge bg={booking.status === "completed" ? "success" : "warning"}>{booking.status}</Badge>
                 </Card.Body>
               </Card>
