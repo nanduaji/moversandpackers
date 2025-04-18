@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Form, Modal, Toast } from 'react-bootstrap';
-import { FaTruck, FaBell, FaClipboardList, FaUserCircle } from 'react-icons/fa';
+import { FaTruck, FaBell, FaClipboardList, FaUserCircle, FaArrowLeft } from 'react-icons/fa';
 import styles from './UserDashboard.module.css';
 import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
@@ -42,6 +42,7 @@ const UserDashboard = () => {
     const [pickUpAddressCoords, setPickUpAddressCoords] = useState(null);
     const [deliveryAddressCoords, setDeliveryAddressCoords] = useState({});
     const [showUserEditModal, setShowUserEditModal] = useState(false);
+    const [recentBookings, setRecentBookings] = useState([]);
     const handleAddressInput = async (query, isPickup = true) => {
         if (query.length < 3) return;
         const endpoint = "https://nominatim.openstreetmap.org/search";
@@ -103,8 +104,10 @@ const UserDashboard = () => {
                         Authorization: `Bearer ${user.token}`,
                     },
                 });
+                console.log("userBookings", response.data)
                 localStorage.setItem('userBookings', JSON.stringify(response.data));
                 setUserBookings(response.data);
+                setRecentBookings(response.data.data);
                 toast.success("User bookings fetched successfully!");
             } catch (error) {
                 console.error('Error fetching user bookings:', error);
@@ -257,6 +260,11 @@ const UserDashboard = () => {
         localStorage.removeItem('token');
         window.location.href = '/signuporlogin';
     }
+    const CloseCurrentModal = () => {
+        setShowBookings(true);
+        // setShowTrackingModal(false);
+    }
+
     return (
         <div className={styles.dashboardWrapper}>
             <ToastContainer />
@@ -267,55 +275,61 @@ const UserDashboard = () => {
                     <Button variant="primary" style={{ marginLeft: '20px' }} onClick={() => handleShowTracking()}>Track Booking</Button>
                     <Button variant="danger" style={{ marginLeft: '20px' }} onClick={() => handleLogOut()}>Logout</Button>
                 </div>
-                <Row>
-                    <Col md={12} sm={12} lg={4} className="mb-4">
-                        <Card className={`${styles.glassCard} text-center`}>
-                            <Card.Body className="d-flex align-items-center">
-                                {/* Left side: Avatar and Name */}
-                                <div className="d-flex flex-column align-items-start me-3">
-                                    <FaUserCircle size={60} className="mb-3 text-primary" />
-                                    <Card.Title className="fw-semibold">{username}</Card.Title>
-                                </div>
-
-                                {/* Right side: Email and Edit Button */}
-                                <div className="d-flex flex-column align-items-end">
-                                    <Card.Text className={styles.subtext}>
+                <Row className="g-4">
+                    {/* Profile Card */}
+                    <Col md={12} sm={12} lg={4}>
+                        <Card className={`${styles.glassCard} text-start p-3 shadow-lg border-0 h-100`}>
+                            <Card.Body className="d-flex justify-content-between align-items-center">
+                                <div className="d-flex flex-column align-items-start">
+                                    <FaUserCircle size={60} className="text-primary mb-2" />
+                                    <Card.Title className="fs-5 fw-semibold mb-1">{username}</Card.Title>
+                                    <Card.Text className={`mb-2 ${styles.subtext}`}>
                                         <strong>Email:</strong> {email}
                                     </Card.Text>
-                                    <Button variant="outline-primary" size="sm" onClick={editUser}>Edit Profile</Button>
+                                    <Button variant="primary" size="sm" onClick={editUser}>Edit Profile</Button>
                                 </div>
                             </Card.Body>
                         </Card>
                     </Col>
-                    <Col md={12} sm={12} lg={4} className="mb-4">
-                        <Card className={`${styles.glassCard} text-center`}>
+
+                    {/* Active Deliveries Card */}
+                    <Col md={12} sm={12} lg={4}>
+                        <Card className={`${styles.glassCard} text-center p-4 shadow-lg border-0 h-100`}>
                             <Card.Body>
-                                <FaTruck size={40} className="mb-3 text-primary" />
-                                <Card.Title>Active Deliveries</Card.Title>
-                                <Card.Text className={styles.subtext}>{ongoingBookings?.length} ongoing deliveries
+                                <FaTruck size={50} className="mb-3 text-info" />
+                                <Card.Title className="fs-5 fw-semibold">Active Deliveries</Card.Title>
+                                <Card.Text className={`${styles.subtext} fs-6`}>
+                                    {ongoingBookings?.length} ongoing deliveries
                                 </Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
-                    <Col md={12} sm={12} lg={4} className="mb-4">
-                        <Card className={`${styles.glassCard} text-center`}>
+
+                    {/* Total Orders Card */}
+                    <Col md={12} sm={12} lg={4}>
+                        <Card className={`${styles.glassCard} text-center p-4 shadow-lg border-0 h-100`}>
                             <Card.Body>
-                                <FaClipboardList size={40} className="mb-3 text-success" />
-                                <Card.Title>Total Orders</Card.Title>
-                                <Card.Text className={styles.subtext}>{userBookings?.data?.length} orders placed</Card.Text>
+                                <FaClipboardList size={50} className="mb-3 text-success" />
+                                <Card.Title className="fs-5 fw-semibold">Total Orders</Card.Title>
+                                <Card.Text className={`${styles.subtext} fs-6`}>
+                                    {userBookings?.data?.length} orders placed
+                                </Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
                 </Row>
-                <Row className="mb-4">
+                <Row className="mb-4 mt-2 g-4">
                     <Col>
-                        <Card className={styles.glassCard}>
-                            <Card.Header className={`fw-semibold ${styles.cardHeader}`}>Recent Activity</Card.Header>
-                            <Card.Body>
+                        <Card className={`${styles.glassCard} shadow-lg border-0`}>
+                            <Card.Header className={`fw-semibold fs-5 bg-transparent border-bottom ${styles.cardHeader}`}>
+                                📌 Recent Activity
+                            </Card.Header>
+                            <Card.Body className="p-4">
                                 <ul className={`list-group list-group-flush ${styles.activityList}`}>
-                                    <li className="list-group-item">Order #1234 dispatched 🚚</li>
-                                    <li className="list-group-item">Received delivery #1198 📦</li>
-                                    <li className="list-group-item">Account password changed 🔒</li>
+                                    <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                                        {recentBookings.length > 0 ? <span>Order <strong>#{recentBookings[0]._id}</strong> {recentBookings[0].status}</span> : <span>No recent bookings</span>}
+                                        <span className="text-muted">🚚</span>
+                                    </li>
                                 </ul>
                             </Card.Body>
                         </Card>
@@ -572,9 +586,12 @@ const UserDashboard = () => {
                             </ul>
                         </div>
                     ) : <Modal.Body>
-                        {/* Order Status Progress */}
                         <div className="mb-4">
-                            <h5 className="mb-3">Delivery Progress</h5>
+                            <h5 className="mb-3"><FaArrowLeft
+                                style={{ cursor: 'pointer' }}
+                                size={20}
+                                onClick={() => CloseCurrentModal()}
+                            />  Delivery Progress</h5>
 
                             <div className="progress" style={{ height: '25px' }}>
                                 <div

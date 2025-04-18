@@ -22,8 +22,6 @@ const SignupOrLogin = () => {
         const token = localStorage.getItem('token');
 
         if (user && token) {
-            console.log("user", user)
-            console.log("token", token)
             setLoggedInAs(user.data.role);
         }
     }, []);
