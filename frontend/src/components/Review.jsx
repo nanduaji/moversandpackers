@@ -19,7 +19,7 @@ function Review() {
           <Col md={4}>
             <div className={styles.quoteCard}>
               <p className={styles.quoteText}>
-                "TruckXpress made my moving experience effortless and stress-free. Highly recommended!"
+                "TruckXpress made my moving experience effortless and stress-free."
               </p>
               <h5 className={styles.quoteAuthor}>- Sarah Johnson</h5>
             </div>
