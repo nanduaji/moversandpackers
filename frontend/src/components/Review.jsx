@@ -10,7 +10,7 @@ function Review() {
       <Container>
         <Row className="justify-content-center">
           <Col md={8} className="text-center">
-            <h2 className={styles.quoteHeading}>What Our Customers Say</h2>
+            <h2 className={styles.quoteHeading} style={{color:'#f97316'}}>What Our Customers Say</h2>
             <p className={styles.quoteSubText}>Real experiences. Real stories. Real satisfaction.</p>
           </Col>
         </Row>

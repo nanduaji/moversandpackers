@@ -16,6 +16,10 @@ function Quotes() {
   });
   const sendQuote = () => {
     console.log(quoteDetails);
+    if(quoteDetails.name === '' || quoteDetails.phoneNumber === '' || quoteDetails.email === '' || quoteDetails.serviceType === '' || quoteDetails.pickupAddress === ''|| quoteDetails.deliveryAddress === ''){
+      alert("Some of the fields are empty")
+      return
+    }
     const message = `Hello, I'm ${quoteDetails.name}.\n\nI would like to request a quote for the following service:\n\n` +
     `📞 Phone: ${quoteDetails.phoneNumber}\n📧 Email: ${quoteDetails.email}\n🛠 Service Type: ${quoteDetails.serviceType}\n` +
     `📦 Pickup Address: ${quoteDetails.pickupAddress}\n📬 Delivery Address: ${quoteDetails.deliveryAddress}`;
