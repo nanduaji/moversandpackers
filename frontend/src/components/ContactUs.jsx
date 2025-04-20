@@ -1,20 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './ContactUs.module.css';
+import { toast,ToastContainer } from 'react-toastify';
+import axios from 'axios';
 
 function ContactUs() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [loading,setLoading] = useState(false)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const contactEmailResponse = await axios.post('https://moversandpackers.onrender.com/api/sendContactEmail', {
+        formData,
+      });
+  
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      console.log("contactEmailResponse",contactEmailResponse.data)
+      toast.success('Message sent successfully');
+      setLoading(false);
+    } catch (error) {
+      toast.error('Failed to send message');
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles.contactWrapper}>
+      <ToastContainer/>
       <h2 className={styles.heading}>Contact Us</h2>
 
       <div className={styles.contactContainer}>
         <div className={styles.formSection}>
           <h3>Get in Touch</h3>
-          <form>
-            <input type="text" placeholder="Your Name" required />
-            <input type="email" placeholder="Your Email" required />
-            <input type="text" placeholder="Subject" required />
-            <textarea placeholder="Your Message" rows="5" required></textarea>
-            <button type="submit">Send Message</button>
+          <form onSubmit={handleSubmit}>
+            <input type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} required />
+            <input type="email" name="email" placeholder="Your Email" value={formData.email} onChange={handleChange} required />
+            <input type="text" name="subject" placeholder="Subject" value={formData.subject} onChange={handleChange} required />
+            <textarea name="message" placeholder="Your Message" rows="5" value={formData.message} onChange={handleChange} required />
+            <button type="submit">{loading === true ?'Loading...':'Send Message'}</button>
           </form>
         </div>
 
@@ -28,7 +65,6 @@ function ContactUs() {
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
-
         </div>
       </div>
     </div>

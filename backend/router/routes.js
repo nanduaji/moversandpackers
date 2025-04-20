@@ -3,7 +3,7 @@ const { addServiceProvider, serviceProviderLogin,getMyBookings } = require("../c
 const { bookService, getServices, getStatus,getUserBookings,cancelBooking } = require("../controllers/userController");
 const { addUser, userLogin, getUsers,editUser } = require("../controllers/userController");
 const authMiddleware = require("../middleware/authMiddleware");
-
+const nodemailer = require('nodemailer');
 const routes = require("express").Router();
 
 // USER ROUTES
@@ -49,4 +49,45 @@ routes.post("/createPaymentIntent",authMiddleware, (req, res) => {
         res.status(500).json({ error: error.message });
     });
 })
+
+// Send Contact Us Email
+routes.post("/sendContactEmail", async (req, res) => {
+    const { name, email, subject, message } = req.body.formData;
+  
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER, 
+          pass: process.env.EMAIL_PASS 
+        }
+      });
+  
+      const mailOptions = {
+        from: `"${name}" <${process.env.EMAIL_USER}>`,
+        to: email, 
+        subject: subject || 'New Enquiry',
+        html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2 style="color: #007BFF;">📩 New Enquiry</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> <a href="mailto:${email}" style="color: #007BFF;">${email}</a></p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p style="margin-top: 20px;"><strong>Message:</strong></p>
+          <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #007BFF;">
+            <p style="white-space: pre-line; margin: 0;">${message}</p>
+          </div>
+          <p style="margin-top: 30px;">Regards,<br/>Your Website Contact Form</p>
+        </div>
+        `
+      };
+  
+      await transporter.sendMail(mailOptions);
+  
+      res.status(200).json({ success: true, message: "Email sent successfully" });
+    } catch (error) {
+      console.error("Email sending failed:", error);
+      res.status(500).json({ success: false, message: "Email sending failed", error: error.message });
+    }
+  });
 module.exports = routes;
