@@ -30,4 +30,23 @@ routes.post("/addServiceProvider", addServiceProvider);
 routes.post("/serviceProviderLogin", serviceProviderLogin);
 routes.post("/getMyBookings/:providerId", authMiddleware, getMyBookings);
 
+
+// PAYMENT ROUTES
+routes.post("/createPaymentIntent",authMiddleware, (req, res) => {
+    const { amount } = req.body;
+    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+    stripe.paymentIntents.create({
+        amount: amount * 100,
+        currency: "inr",
+        automatic_payment_methods: {
+            enabled: true,
+        },
+    })
+    .then((paymentIntent) => {
+        res.status(200).json({ clientSecret: paymentIntent.client_secret });
+    })
+    .catch((error) => {
+        res.status(500).json({ error: error.message });
+    });
+})
 module.exports = routes;

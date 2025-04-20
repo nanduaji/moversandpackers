@@ -8,6 +8,10 @@ import axios from 'axios';
 import UserDashboard from './UserDashboard';
 import AdminDashboard from './AdminDashboard';
 import ServiceProviderDashboard from './ServiceProviderDashboard';
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 const SignupOrLogin = () => {
     const [show, setShow] = useState(false);
@@ -102,10 +106,12 @@ const SignupOrLogin = () => {
 
     if (loggedInAs === 'user') {
         return (
+            <Elements stripe={stripePromise}>
             <Container className="text-center mt-5">
                 {/* <h1>Welcome to the User Dashboard</h1> */}
                 <UserDashboard />
             </Container>
+            </Elements>
         );
     }
 

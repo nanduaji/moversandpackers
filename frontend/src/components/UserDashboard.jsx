@@ -6,6 +6,11 @@ import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import { Navigate } from 'react-router-dom';
 import DeliveryTrackingMap from './DeliveryTrackingMap';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+import { ButtonGroup, ToggleButton } from 'react-bootstrap';
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 const UserDashboard = () => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -43,6 +48,17 @@ const UserDashboard = () => {
     const [deliveryAddressCoords, setDeliveryAddressCoords] = useState({});
     const [showUserEditModal, setShowUserEditModal] = useState(false);
     const [recentBookings, setRecentBookings] = useState([]);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentIntent, setPaymentIntent] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState('cod');
+
+    const paymentOptions = [
+        { label: "Cash On Delivery", value: "cod" },
+        { label: "Card Payment", value: "card" },
+    ];
+    const stripe = useStripe();
+    const elements = useElements();
     const handleAddressInput = async (query, isPickup = true) => {
         if (query.length < 3) return;
         const endpoint = "https://nominatim.openstreetmap.org/search";
@@ -78,22 +94,90 @@ const UserDashboard = () => {
             setDeliverySuggestions([]);
         }
     };
-
+    const proceedToPayment = (e) => {
+        e.preventDefault();
+        setShowPaymentModal(true);
+    }
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("booking", booking)
+        if (!stripe || !elements) {
+            toast.error("Stripe has not loaded yet.");
+            return;
+        }
+
+        setLoading(true);
         try {
-            const bookingResponse = await axios.post(`https://moversandpackers.onrender.com/api/bookService`, booking, {
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-            });
-            if (bookingResponse.status === 201) {
-                toast.success("Your booking has been created successfully and you will receive a confirmation email shortly.");
+            if (selectedPayment === "card") {
+                const paymentIntentRes = await axios.post(
+                    "https://moversandpackers.onrender.com/api/createPaymentIntent",
+                    { amount: booking.finalPrice },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user.token}`,
+                        },
+                    }
+                );
+
+                const clientSecret = paymentIntentRes.data.clientSecret;
+
+                const result = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: elements.getElement(CardElement),
+                        billing_details: {
+                            name: user.name,
+                            email: user.email,
+                        },
+                    },
+                });
+                console.log("result", result)
+                if (result.error) {
+                    toast.error(result.error.message);
+                    return;
+                }
+
+                if (result.paymentIntent.status === "succeeded") {
+                    const bookingResponse = await axios.post(
+                        `https://moversandpackers.onrender.com/api/bookService`,
+                        booking,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${user.token}`,
+                            },
+                        }
+                    );
+
+                    if (bookingResponse.status === 201) {
+                        toast.success("Your booking has been created successfully and you will receive a confirmation email shortly.");
+                        setShowPaymentModal(false);
+                    }
+                    setShowModal(false);
+                }
             }
-            setShowModal(false);
+            else if (selectedPayment === "cod") {
+                booking.paymentStatus = 'Unpaid'
+                const bookingResponse = await axios.post(
+                    `https://moversandpackers.onrender.com/api/bookService`,
+                    booking,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user.token}`,
+                        },
+                    }
+                );
+
+                if (bookingResponse.status === 201) {
+                    toast.success("Your booking has been created successfully and you will receive a confirmation email shortly.");
+                    setShowPaymentModal(false);
+                }
+                setShowModal(false);
+            }
+
         } catch (error) {
-            console.error('Error creating booking:', error);
-            toast.error("Failed to create booking. Please try again.");
+            console.error("Error:", error);
+            toast.error("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -266,6 +350,7 @@ const UserDashboard = () => {
     }
 
     return (
+
         <div className={styles.dashboardWrapper}>
             <ToastContainer />
             <Container className="py-5">
@@ -341,7 +426,7 @@ const UserDashboard = () => {
                     </Modal.Header>
 
                     <Modal.Body className="bg-white">
-                        <Form onSubmit={handleSubmit}>
+                        <Form onSubmit={proceedToPayment}>
                             <Row>
                                 {/* Left Column */}
                                 <Col md={6}>
@@ -553,7 +638,7 @@ const UserDashboard = () => {
                                     Cancel
                                 </Button>
                                 <Button type="submit" variant="primary">
-                                    🚚 Create Booking
+                                    Proceed To Payment
                                 </Button>
                             </div>
                         </Form>
@@ -570,7 +655,7 @@ const UserDashboard = () => {
                         <Modal.Title>Delivery Tracking</Modal.Title>
                     </Modal.Header>
                     {showBookings === true ? (
-                        <div className="bg-light p-3">
+                        <div className="bg-light p-3" style={{overflowY:'auto', maxHeight:'500px'}}>
                             <h5 className="mb-3">Your Bookings</h5>
                             <ul className="list-group">
                                 {userBookings?.data?.map((booking, index) => (
@@ -580,7 +665,7 @@ const UserDashboard = () => {
                                             <strong>Status:</strong> {booking.status}
                                         </div>
                                         <Button variant="primary" onClick={() => trackOrder(booking._id)}>Track</Button>
-                                        <Button variant="danger" onClick={() => cancelOrder(booking._id)}>Cancel</Button>
+                                        <Button variant="danger" disabled={booking.status === 'Delivered'} onClick={() => cancelOrder(booking._id)}>Cancel</Button>
                                     </li>
                                 ))}
                             </ul>
@@ -738,7 +823,84 @@ const UserDashboard = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+                <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} size="lg" centered scrollable>
+                    <Modal.Header closeButton>
+                        <Modal.Title className="fw-bold">Complete Your Payment</Modal.Title>
+                    </Modal.Header>
 
+                    <Modal.Body>
+                        <h5 className="mb-4 text-primary">Select Payment Method</h5>
+
+                        <div className="payment-options d-flex gap-3 mb-4 flex-wrap">
+                            {paymentOptions.map((option) => (
+                                <label
+                                    key={option.value}
+                                    className={`payment-option border rounded p-3 px-4 d-flex align-items-center shadow-sm ${selectedPayment === option.value ? 'border-primary bg-light' : 'border-secondary'
+                                        }`}
+                                    style={{ cursor: 'pointer', minWidth: '160px' }}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="payment"
+                                        value={option.value}
+                                        checked={selectedPayment === option.value}
+                                        onChange={(e) => setSelectedPayment(e.target.value)}
+                                        className="me-2"
+                                    />
+                                    {option.label}
+                                </label>
+                            ))}
+                        </div>
+
+                        <div className="mb-4">
+                            <p><strong>Pickup Address:</strong> {`${booking?.pickupAddress?.street}, ${booking?.pickupAddress?.city}, ${booking?.pickupAddress?.zipCode}`}</p>
+                            <p><strong>Delivery Address:</strong> {`${booking?.deliveryAddress?.street}, ${booking?.deliveryAddress?.city}, ${booking?.deliveryAddress?.zipCode}`}</p>
+                            <p><strong>Total Amount:</strong> ₹{booking?.finalPrice}</p>
+                            <p><strong>Payment Status:</strong> <span className="text-danger">Pending</span></p>
+                        </div>
+
+                        <hr className="my-4" />
+
+                        <form onSubmit={handleSubmit}>
+                            {selectedPayment === 'card' ? (
+                                <div className="mb-4">
+                                    <label htmlFor="card-element" className="form-label fw-semibold mb-2">Card Information</label>
+                                    <div style={{ border: "1px solid #ced4da", borderRadius: "8px", padding: "12px", background: "#f9f9f9" }}>
+                                        <CardElement
+                                            id="card-element"
+                                            options={{
+                                                style: {
+                                                    base: {
+                                                        fontSize: '16px',
+                                                        color: '#424770',
+                                                        '::placeholder': {
+                                                            color: '#aab7c4',
+                                                        },
+                                                    },
+                                                    invalid: {
+                                                        color: '#9e2146',
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="alert alert-info">You selected <strong>Cash on Delivery</strong>. Click <strong>Book</strong> to proceed.</div>
+                            )}
+
+                            <Button type="submit" variant="primary" className="w-100" disabled={!stripe || !elements || loading}>
+                                {selectedPayment === "card" ? 'Pay' : 'Book'} ₹{booking?.finalPrice}
+                            </Button>
+                        </form>
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowPaymentModal(false)}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
             </Container>
         </div>
