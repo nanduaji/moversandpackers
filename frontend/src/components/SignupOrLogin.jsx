@@ -69,11 +69,10 @@ const SignupOrLogin = () => {
         const name = event.target[1].value;
         const email = event.target[2].value;
         const phoneNumber = event.target[3].value;
-        const services = event.target[4]?.value || null;
-        const location = event.target[5]?.value || null;
-        const password = !event.target[4] ? event.target[6].value : event.target[4].value;
-        const confirmPassword = !event.target[4] ? event.target[7].value : event.target[5].value;
-
+        const services = role === "service-provider"? event.target[4]?.value : null;
+        const location = role === "service-provider"?event.target[5]?.value : null;
+        const password = services!=null ? event.target[6]?.value : event.target[4]?.value;
+        const confirmPassword = location!=null ? event.target[7]?.value: event.target[5]?.value;
         if (password !== confirmPassword) {
             toast.error('Passwords do not match!');
             return;
