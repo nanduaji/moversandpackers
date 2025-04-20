@@ -58,7 +58,7 @@ const userController = {
                     <p>Best regards, <br /><strong>TruckXpress</strong></p>
                 `;
             
-                const mailOptions = {
+                const mailOptions= {
                     from: process.env.EMAIL_USER,
                     to: email,
                     subject: 'Welcome! Your Account Has Been Created',
