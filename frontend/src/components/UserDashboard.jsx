@@ -137,6 +137,7 @@ const UserDashboard = () => {
                 }
 
                 if (result.paymentIntent.status === "succeeded") {
+                    booking.paymentStatus = 'Paid'
                     const bookingResponse = await axios.post(
                         `https://moversandpackers.onrender.com/api/bookService`,
                         booking,
