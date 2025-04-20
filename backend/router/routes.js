@@ -5,6 +5,18 @@ const { addUser, userLogin, getUsers,editUser } = require("../controllers/userCo
 const authMiddleware = require("../middleware/authMiddleware");
 const nodemailer = require('nodemailer');
 const routes = require("express").Router();
+const express = require('express');
+const cors = require('cors');
+const app = express();
+
+// Allow CORS for frontend origin
+app.use(cors({
+  origin: 'https://moversandpackers-frontend.onrender.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+app.use(express.json());
 
 // USER ROUTES
 routes.post("/addUser", addUser); 
