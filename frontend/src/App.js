@@ -8,6 +8,7 @@ import Services from "./components/Services";
 import ContactUs from "./components/ContactUs";
 import SignupOrLogin from "./components/SignupOrLogin";
 import 'leaflet/dist/leaflet.css';
+import Footer from "./components/Footer";
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/contactus" element={<ContactUs />} />
         <Route path="/signuporlogin" element={<SignupOrLogin />} />
       </Routes>
+      <Footer/>
     </Router>
   );
 }

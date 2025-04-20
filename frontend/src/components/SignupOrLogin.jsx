@@ -17,20 +17,20 @@ const SignupOrLogin = () => {
     const [show, setShow] = useState(false);
     const [role, setRole] = useState('user');
     const [loggedInAs, setLoggedInAs] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
         const token = localStorage.getItem('token');
-
         if (user && token) {
             setLoggedInAs(user.data.role);
         }
     }, []);
     const handleLogin = async (event) => {
         event.preventDefault();
+        setLoading(true)
         const email = event.target[0].value;
         const password = event.target[1].value;
         console.log('role', role)
@@ -54,6 +54,7 @@ const SignupOrLogin = () => {
                 localStorage.setItem('token', data.token);
                 toast.success('Login Successful!');
                 setLoggedInAs(role);
+                setLoading(false)
             } else {
                 toast.error(data.message || 'Login Failed!');
             }
@@ -70,8 +71,8 @@ const SignupOrLogin = () => {
         const phoneNumber = event.target[3].value;
         const services = event.target[4]?.value || null;
         const location = event.target[5]?.value || null;
-        const password = !event.target[4]? event.target[6].value: event.target[4].value;
-        const confirmPassword = !event.target[4]? event.target[7].value: event.target[5].value;
+        const password = !event.target[4] ? event.target[6].value : event.target[4].value;
+        const confirmPassword = !event.target[4] ? event.target[7].value : event.target[5].value;
 
         if (password !== confirmPassword) {
             toast.error('Passwords do not match!');
@@ -80,7 +81,7 @@ const SignupOrLogin = () => {
 
         try {
             const endPoint = role === 'user' ? 'addUser' : role === 'admin' ? 'addAdmin' : 'addServiceProvider';
-            
+
             const userRegisterResponse = await axios.post(`https://moversandpackers.onrender.com/api/${endPoint}`, {
                 name,
                 email,
@@ -107,10 +108,10 @@ const SignupOrLogin = () => {
     if (loggedInAs === 'user') {
         return (
             <Elements stripe={stripePromise}>
-            <Container className="text-center mt-5">
-                {/* <h1>Welcome to the User Dashboard</h1> */}
-                <UserDashboard />
-            </Container>
+                <Container className="text-center mt-5">
+                    {/* <h1>Welcome to the User Dashboard</h1> */}
+                    <UserDashboard />
+                </Container>
             </Elements>
         );
     }
@@ -169,8 +170,16 @@ const SignupOrLogin = () => {
                             </Form.Group>
 
                             <Button variant="primary" type="submit" className="w-100 mb-3">
-                                Login to {role === 'user' ? 'User' : role === 'admin' ? 'Admin' : 'Service Provider'} Dashboard
+                                {loading === true
+                                    ? 'Loading...'
+                                    : `Login to ${role === 'user'
+                                        ? 'User'
+                                        : role === 'admin'
+                                            ? 'Admin'
+                                            : 'Service Provider'
+                                    } Dashboard`}
                             </Button>
+
 
                             <div className="text-center">
                                 <small>

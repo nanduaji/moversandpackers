@@ -276,13 +276,16 @@ const UserDashboard = () => {
 
         if (trackingStatus?.data?.serviceDetails?.pickupAddress?.zipCode) fetchCoords();
     };
-    const cancelOrder = async (bookingId) => {
+    const cancelOrder = async (bookingId,userEmail) => {
         const confirm = window.confirm("Are you sure you want to cancel this booking?");
         if (!confirm) return;
         try {
             const cancelResponse = await axios.post(
                 `https://moversandpackers.onrender.com/api/cancelBooking/${bookingId}`,
-                {},
+                {
+                    userEmail,
+                    reason:"user cancelled"
+                },
                 {
                     headers: {
                         Authorization: `Bearer ${user.token}`,
@@ -347,11 +350,9 @@ const UserDashboard = () => {
     }
     const CloseCurrentModal = () => {
         setShowBookings(true);
-        // setShowTrackingModal(false);
     }
 
     return (
-
         <div className={styles.dashboardWrapper}>
             <ToastContainer />
             <Container className="py-5">
@@ -666,7 +667,7 @@ const UserDashboard = () => {
                                             <strong>Status:</strong> {booking.status}
                                         </div>
                                         <Button variant="primary" onClick={() => trackOrder(booking._id)}>Track</Button>
-                                        <Button variant="danger" disabled={booking.status === 'Delivered'} onClick={() => cancelOrder(booking._id)}>Cancel</Button>
+                                        <Button variant="danger" disabled={booking.status === 'Delivered'} onClick={() => cancelOrder(booking._id,email)}>Cancel</Button>
                                     </li>
                                 ))}
                             </ul>

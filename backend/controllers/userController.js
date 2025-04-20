@@ -426,9 +426,9 @@ const userController = {
     cancelBooking: async (req, res) => {
         try {
             const bookingId = req.params.bookingId;
-
+            const {userEmail,reason} = req.body;
             const booking = await Service.findById(bookingId);
-
+            // If payment status is paid, write method to refund
             if (!booking) {
                 return res.status(404).json({
                     success: false,
@@ -439,7 +439,27 @@ const userController = {
             }
 
             await Service.deleteOne({ _id: bookingId });
-
+            const transporter = nodemailer.createTransport({
+                service: 'gmail', 
+                auth: {
+                  user: process.env.EMAIL_USER,
+                  pass: process.env.EMAIL_PASS 
+                }
+              });
+          
+              const mailOptions = {
+                from: '"Your Company" <yourcompanyemail@example.com>',
+                to: userEmail,
+                subject: 'Your Booking Has Been Cancelled',
+                html: `
+                  <p>We regret to inform you that your booking with booking id <strong>${bookingId}</strong> </p>
+                  <p><strong>Reason:</strong> ${reason}</p>
+                  <p>If you have any questions, feel free to reach out to our support.</p>
+                  <p>Regards,<br>Your Company Team</p>
+                `
+              };
+          
+              await transporter.sendMail(mailOptions);
             res.status(200).json({
                 success: true,
                 statusCode: 200,
