@@ -55,7 +55,7 @@ const userController = {
                     <p>We're excited to have you on board! You can now log in and start using our services.</p>
                     <p>If you have any questions, feel free to reach out to our support team.</p>
                     <br />
-                    <p>Best regards, <br /><strong>Your Company Team</strong></p>
+                    <p>Best regards, <br /><strong>TruckXpress</strong></p>
                 `;
             
                 const mailOptions = {
@@ -452,10 +452,10 @@ const userController = {
                 to: userEmail,
                 subject: 'Your Booking Has Been Cancelled',
                 html: `
-                  <p>We regret to inform you that your booking with booking id <strong>${bookingId}</strong> </p>
+                  <p>We regret to inform you that your booking with booking id <strong>${bookingId}</strong> has been cancelled</p>
                   <p><strong>Reason:</strong> ${reason}</p>
                   <p>If you have any questions, feel free to reach out to our support.</p>
-                  <p>Regards,<br>Your Company Team</p>
+                  <p>Regards,<br>TruckXpress</p>
                 `
               };
           
