@@ -5,7 +5,7 @@ function Footer() {
   return (
     <div className={styles.footer}> 
       <div className={styles.footerContent}> 
-        <p style={{color:'white'}}>&copy; 2025 Your Company. All rights reserved.</p>
+        <p style={{color:'white'}}>&copy; 2025 TruckXpress. All rights reserved.</p>
         <div className={styles.footerLinks}>
           <a href="/aboutus" className={styles.footerLink}>
             About Us

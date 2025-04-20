@@ -3,6 +3,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import styles from './Home.module.css';
+import { Navigate } from 'react-router-dom';
 
 function Home() {
     const texts = ['HOUSE?', 'OFFICE?', 'CAR?', 'SHOP?', 'STORAGE?'];
@@ -33,7 +34,7 @@ function Home() {
                         <p className={styles.subText}>
                             TruckXpress is your trusted logistics partner, committed to safe, fast, and reliable transportation solutions tailored to your needs.
                         </p>
-                        <button className={styles.exploreBtn}>Explore More</button>
+                        <button className={styles.exploreBtn} onClick={() => window.location.href = '/services'}>Explore More</button>
                     </Col>
                     <Col md={6} className="text-center">
                         <img
