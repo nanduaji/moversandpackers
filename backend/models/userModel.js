@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'user'],
         default: 'user',
         required: true
+    },
+    status: {
+        type: String,
+        default:'enabled'
     }
 })
 
