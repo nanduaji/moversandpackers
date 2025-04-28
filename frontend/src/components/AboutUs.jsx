@@ -5,7 +5,31 @@ import Col from 'react-bootstrap/Col';
 import styles from './AboutUs.module.css';
 import ReactPlayer from 'react-player'
 import { Button, Modal } from 'react-bootstrap';
-
+import CountUp from 'react-countup';
+const Stats = () => {
+    const statsData = [
+      { label: 'Clients Served', end: 1500 },
+      { label: 'Kms Moved', end: 25000 },
+      { label: 'Boxes Packed', end: 100000 },
+      { label: 'Happy Families', end: 1200 },
+    ];
+  
+    return (
+      <div className={styles.statsWrapper}>
+        {/* <h2 className={styles.heading}>Our Achievements</h2> */}
+        <div className={styles.statsGrid}>
+          {statsData.map((stat, index) => (
+            <div key={index} className={styles.statCard}>
+              <h3>
+                <CountUp end={stat.end} duration={3} separator="," />
+              </h3>
+              <p>{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 function AboutUs() {
     const [loading, setLoading] = useState(true);
     const [show, setShow] = useState(false);
@@ -79,6 +103,7 @@ function AboutUs() {
 
                         <section style={{ marginBottom: '1.5rem' }}>
                             <h4 className="mb-3" style={{color:"#f97316"}}>Why Choose Us?</h4>
+                            <Stats/>
                             <p className="text-muted">
                                 We are passionate about providing a personalized moving experience.
                                 Our team treats your belongings with the same care as if they were our own.
@@ -92,6 +117,7 @@ function AboutUs() {
                             <p className="text-muted">
                                 📞 Ready to move? Our experts are just a call away. Reach out to us today and let's plan your next move together!
                             </p>
+                            <button className={styles.exploreBtn} onClick={()=>window.location.href = "/contactus"}>Contact Us</button>
                         </section>
                     </Modal.Body>
                     <Modal.Footer className="bg-light">

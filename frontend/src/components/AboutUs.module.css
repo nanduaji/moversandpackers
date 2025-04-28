@@ -148,3 +148,47 @@
     }
   }
   
+  .statsWrapper {
+    text-align: center;
+    padding: 50px 20px;
+    background: #f9f9f9;
+  }
+  
+  .heading {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 40px;
+    color: #333;
+  }
+  
+  .statsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+  }
+  
+  .statCard {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 200px;
+    transition: transform 0.3s ease;
+  }
+  
+  .statCard:hover {
+    transform: translateY(-10px);
+  }
+  
+  .statCard h3 {
+    font-size: 2.2rem;
+    color: #007bff;
+    margin-bottom: 10px;
+  }
+  
+  .statCard p {
+    font-size: 1.1rem;
+    color: #555;
+  }
+  
