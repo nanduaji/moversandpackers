@@ -5,6 +5,17 @@ import { FaTruckMoving, FaBoxes, FaHome, FaWarehouse, FaHandsHelping, FaRegSmile
 import styles from './Services.module.css';
 
 function Services() {
+  
+  const handleCardClick = (serviceName) => {
+    const user  = JSON.parse(localStorage.getItem('user'));
+    if (user?.token && user?.data?.role === 'user') {  
+      window.location.href = `/signuporlogin`;
+    }
+    else {
+      window.location.href = `/signuporlogin`;
+    }
+  };
+
   return (
     <div className={styles.serviceWrapper}>
       <h2 className={styles.heading}>Our Services</h2>
@@ -12,7 +23,11 @@ function Services() {
       <Container>
         <Row className="gx-4 gy-4">
           <Col md={4} sm={6} xs={12}>
-            <div className={styles.serviceCard}>
+            <div 
+              className={styles.serviceCard} 
+              onClick={() => handleCardClick('Local Shifting')}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.icon}><FaTruckMoving className={`${styles.icon} ${styles.moveTruck}`} /></div>
               <h4>Local Shifting</h4>
               <p>Safe and fast relocation within your city at affordable rates.</p>
@@ -20,7 +35,11 @@ function Services() {
           </Col>
 
           <Col md={4} sm={6} xs={12}>
-            <div className={styles.serviceCard}>
+            <div 
+              className={styles.serviceCard}
+              onClick={() => handleCardClick('Packing & Unpacking')}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.icon}><FaBoxes className={`${styles.icon} ${styles.boxBounce}`} /></div>
               <h4>Packing & Unpacking</h4>
               <p>Professional packing using high-quality materials for utmost safety.</p>
@@ -28,7 +47,11 @@ function Services() {
           </Col>
 
           <Col md={4} sm={6} xs={12}>
-            <div className={styles.serviceCard}>
+            <div 
+              className={styles.serviceCard}
+              onClick={() => handleCardClick('Home Relocation')}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.icon}><FaHome className={`${styles.icon} ${styles.homePulse}`} /></div>
               <h4>Home Relocation</h4>
               <p>Complete house shifting services with zero damage guarantee.</p>
@@ -36,7 +59,11 @@ function Services() {
           </Col>
 
           <Col md={4} sm={6} xs={12}>
-            <div className={styles.serviceCard}>
+            <div 
+              className={styles.serviceCard}
+              onClick={() => handleCardClick('Storage & Warehousing')}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.icon}><FaWarehouse className={`${styles.icon} ${styles.warehouseScale}`} /></div>
               <h4>Storage & Warehousing</h4>
               <p>Secure storage solutions for your valuable belongings.</p>
@@ -44,7 +71,11 @@ function Services() {
           </Col>
 
           <Col md={4} sm={6} xs={12}>
-            <div className={styles.serviceCard}>
+            <div 
+              className={styles.serviceCard}
+              onClick={() => handleCardClick('Corporate Shifting')}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.icon}><FaHandsHelping className={`${styles.icon} ${styles.helpShake}`} /></div>
               <h4>Corporate Shifting</h4>
               <p>Efficient shifting of office goods with minimum downtime.</p>
@@ -52,7 +83,11 @@ function Services() {
           </Col>
 
           <Col md={4} sm={6} xs={12}>
-            <div className={styles.serviceCard}>
+            <div 
+              className={styles.serviceCard}
+              onClick={() => handleCardClick('Customer Support')}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.icon}><FaRegSmile className={`${styles.icon} ${styles.smileRotate}`} /></div>
               <h4>Customer Support</h4>
               <p>24x7 dedicated support to assist you throughout the process.</p>
