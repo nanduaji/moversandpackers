@@ -50,6 +50,11 @@ const SignupOrLogin = () => {
 
             const data = userLoginResponse.data;
             if (data.success) {
+                console.log("data",data)
+                if(data.data.status === 'disabled'){
+                    toast.error('User is disabled. Please contact admin')
+                    return;
+                }
                 localStorage.setItem('user', JSON.stringify(data));
                 localStorage.setItem('token', data.token);
                 toast.success('Login Successful!');

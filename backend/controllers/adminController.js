@@ -1,6 +1,7 @@
 const Admin = require('../models/adminModel');
 const Services = require('../models/serviceModel');
 const ServiceProviders = require('../models/serviceProviderModel');
+const User = require("../models/userModel")
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
@@ -208,6 +209,46 @@ const adminController = {
                 statusCode: 200,
                 message: 'Booking status updated successfully',
                 data: updatedBooking
+            });
+
+        } catch (err) {
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: 'Server error',
+                error: err.message
+            });
+        }
+    },
+    updateUserStatus: async (req,res) => {
+        try {
+            const { userId } = req.params;
+            const { status } = req.body;
+            // Check if bookingId and status are provided
+            if (!userId || !status) {
+                return res.status(400).json({
+                    success: false,
+                    statusCode: 400,
+                    message: 'User ID and status are required',
+                    data: null
+                });
+            }
+
+            // Update booking status
+            const updatedUser = await User.findByIdAndUpdate(userId, { status }, { new: true });
+            if (!updatedUser) {
+                return res.status(404).json({
+                    success: false,
+                    statusCode: 404,
+                    message: 'User not found',
+                    data: null
+                });
+            }
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: 'Booking status updated successfully',
+                data: updatedUser
             });
 
         } catch (err) {

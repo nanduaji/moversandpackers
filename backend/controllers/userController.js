@@ -158,7 +158,7 @@ const userController = {
                 statusCode: 200,
                 message: 'Login successful',
                 token,
-                data: { id: user._id, name: user.name, email: user.email, role: user.role, phoneNumber: user.phoneNumber }
+                data: { id: user._id, name: user.name, email: user.email, role: user.role, phoneNumber: user.phoneNumber,status:user.status }
             });
         } catch (err) {
             res.status(500).json({

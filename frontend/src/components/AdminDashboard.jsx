@@ -59,7 +59,69 @@ const AdminDashboard = () => {
     }
     const handleToggleUserStatus = async (userId, currentStatus) => {
         const newStatus = currentStatus === "enabled" ? "disabled" : "enabled";
+        try {
+            const updateUserStatusResponse = await axios.post(
+                `https://moversandpackers.onrender.com/api/updateUserStatus/${userId}`,
+                {
+                    status: newStatus
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+            );
+            const updatedStatus = updateUserStatusResponse.data.status || newStatus;
+            setAllUsers((prevUsers) =>
+                prevUsers.map((user) =>
+                    user._id === userId
+                        ? { ...user, status: updatedStatus }
+                        : user
+                )
+            );
+            toast.success("User status updated");
+        } catch (error) {
+            console.error("Error updating booking status:", error);
+        }
     }
+    const handleToggleServiceProviderStatus = async (providerId, currentStatus) => {
+        const newStatus = currentStatus === "enabled" ? "disabled" : "enabled";
+        try {
+            const updateServiceProviderStatusResponse = await axios.post(
+                `https://moversandpackers.onrender.com/api/updateServiceProviderStatus/${providerId}`,
+                {
+                    status: newStatus
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+            );
+            const updatedStatus = updateServiceProviderStatusResponse.data.status || newStatus;
+            setAllServiceProviders((prevProviders) =>
+                prevProviders.map((provider) => 
+                    provider._id === providerId
+                        ? { ...provider, status: updatedStatus }
+                        : provider
+                )
+            );
+            toast.success("Service Provider status updated");
+        } catch (error) {
+            console.error("Error updating booking status:", error);
+        }
+    }
+
     const handleUpdateStatus = async (bookingId, currentStatus, customerEmail) => {
         try {
             const bookingStatusUpdateResponse = await axios.post(
@@ -175,9 +237,9 @@ const AdminDashboard = () => {
                                                 checked={user.status === "enabled"}
                                                 onChange={() => handleToggleUserStatus(user._id, user.status)}
                                             />
-                                            <label className="form-check-label">
+                                            {/* <label className="form-check-label">
                                                 {user.status === "enabled" ? "Enabled" : "Disabled"}
-                                            </label>
+                                            </label> */}
                                         </div>
                                     </td>
 
@@ -229,26 +291,40 @@ const AdminDashboard = () => {
                     <Modal.Title>All Service Providers</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <table className="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {allServiceProviders.map((provider, index) => (
-                                <tr key={index}>
-                                    <td>{provider.name}</td>
-                                    <td>{provider.email}</td>
-                                    <td>{provider.phoneNumber}</td>
+                    <div style={{ overflowX: 'auto' }}>
+                        <table className="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th> 
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {allServiceProviders.map((provider, index) => (
+                                    <tr key={index}>
+                                        <td>{provider.name}</td>
+                                        <td>{provider.email}</td>
+                                        <td>{provider.phoneNumber}</td>
+                                        <td>
+                                            <div className="form-check form-switch">
+                                                <input
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    checked={provider.status === "enabled"}
+                                                    onChange={() => handleToggleServiceProviderStatus(provider._id, provider.status)}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </Modal.Body>
             </Modal>
+
             <ToastContainer position="top-right" autoClose={2000} />
         </div>
     );

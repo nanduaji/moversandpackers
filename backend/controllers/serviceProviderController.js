@@ -93,7 +93,7 @@ const serviceProviderController = {
                     statusCode: 200,
                     message: 'Login successful',
                     token,
-                    data: { id: user._id, name: user.name, email: user.email,role:user.role }
+                    data: { id: user._id, name: user.name, email: user.email,role:user.role,status:user.status,phoneNumber:user.phoneNumber,services:user.services,location:user.location,verified:user.verified,availability:user.availability,ratings:user.ratings,totalReviews:user.totalReviews,earnings:user.earnings }
                 });
             } catch (err) {
                 res.status(500).json({
@@ -135,6 +135,47 @@ const serviceProviderController = {
             });
         }
     },
+    updateServiceProviderStatus: async (req, res) => {
+        try {
+            const { providerId } = req.params;
+            const { status } = req.body;
+            // Check if providerId and status are provided
+            if (!providerId || !status) {
+                return res.status(400).json({
+                    success: false,
+                    statusCode: 400,
+                    message: 'Provider ID and status are required',
+                    data: null
+                });
+            }
+
+            // Update service provider status
+            const updatedProvider = await ServiceProvider.findByIdAndUpdate(providerId, { status }, { new: true });
+            if (!updatedProvider) {
+                return res.status(404).json({
+                    success: false,
+                    statusCode: 404,
+                    message: 'Service Provider not found',
+                    data: null
+                });
+            }
+
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: 'Service Provider status updated successfully',
+                data: updatedProvider
+            });
+        } catch (err) {
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: 'Server error',
+                error: err.message
+            });
+        }
+    }
+    // Add more methods as needed
     
 }
 module.exports = serviceProviderController;

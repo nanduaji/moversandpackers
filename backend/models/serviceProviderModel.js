@@ -49,6 +49,10 @@ const serviceProviderSchema = new mongoose.Schema({
     earnings: {
         type: Number,
         default: 0
+    },
+    status: {
+        type: String,
+        default:'enabled'
     }
 }, { timestamps: true });
 

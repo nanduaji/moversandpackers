@@ -1,5 +1,5 @@
-const { addAdmin, adminLogin,getAllBookings,getAllServiceProviders,updateBookingStatus } = require("../controllers/adminController");
-const { addServiceProvider, serviceProviderLogin,getMyBookings } = require("../controllers/serviceProviderController");
+const { addAdmin, adminLogin,getAllBookings,getAllServiceProviders,updateBookingStatus,updateUserStatus } = require("../controllers/adminController");
+const { addServiceProvider, serviceProviderLogin,getMyBookings,updateServiceProviderStatus } = require("../controllers/serviceProviderController");
 const { bookService, getServices, getStatus,getUserBookings,cancelBooking } = require("../controllers/userController");
 const { addUser, userLogin, getUsers,editUser } = require("../controllers/userController");
 const authMiddleware = require("../middleware/authMiddleware");
@@ -35,12 +35,14 @@ routes.post("/getUsers", authMiddleware, getUsers);
 routes.post("/getAllBookings", authMiddleware, getAllBookings);
 routes.post("/getAllServiceProviders", authMiddleware, getAllServiceProviders); 
 routes.post("/updateBookingStatus/:bookingId", authMiddleware, updateBookingStatus);
+routes.post("/updateUserStatus/:userId",authMiddleware,updateUserStatus )
 
 
 // SERVICE PROVIDER ROUTES
 routes.post("/addServiceProvider", addServiceProvider);
 routes.post("/serviceProviderLogin", serviceProviderLogin);
 routes.post("/getMyBookings/:providerId", authMiddleware, getMyBookings);
+routes.post("/updateServiceProviderStatus/:providerId", authMiddleware, updateServiceProviderStatus);
 
 
 // PAYMENT ROUTES
