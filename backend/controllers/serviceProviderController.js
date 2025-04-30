@@ -174,8 +174,50 @@ const serviceProviderController = {
                 error: err.message
             });
         }
-    }
-    // Add more methods as needed
+    },
+    editServiceProvider: async (req, res) => {
+        try {
+            const { providerId } = req.params;
+            const { name, email, phoneNumber, services, location } = req.body;
+            console.log("providerId",providerId)
+            console.log("name, email, phoneNumber, services, location",name, email, phoneNumber, services, location)
+            // Check if providerId is provided
+            if (!providerId) {
+                return res.status(400).json({
+                    success: false,
+                    statusCode: 400,
+                    message: 'Provider ID is required',
+                    data: null
+                });
+            }
+
+            // Update service provider details
+            const updatedProvider = await ServiceProvider.findByIdAndUpdate(providerId, { name, email, phoneNumber, services, location }, { new: true });
+            if (!updatedProvider) {
+                return res.status(404).json({
+                    success: false,
+                    statusCode: 404,
+                    message: 'Service Provider not found',
+                    data: null
+                });
+            }
+
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: 'Service Provider details updated successfully',
+                data: updatedProvider
+            });
+        } catch (err) {
+            res.status(500).json({
+                success: false,
+                statusCode: 500,
+                message: 'Server error',
+                error: err.message
+            });
+        }
+    }   
+    
     
 }
 module.exports = serviceProviderController;
